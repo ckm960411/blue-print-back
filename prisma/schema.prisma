@@ -48,9 +48,9 @@ model Link {
 // TODO: comment 필드 추가 필요
 model Task {
   id           Int            @id @default(autoincrement())
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  deletedAt    DateTime
+  createdAt    DateTime?      @default(now())
+  updatedAt    DateTime?      @updatedAt
+  deletedAt    DateTime?
   title        String
   description  String
   content      String
@@ -67,9 +67,9 @@ model Task {
 
 model Memo {
   id           Int        @id @default(autoincrement())
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  deletedAt    DateTime
+  createdAt    DateTime?  @default(now())
+  updatedAt    DateTime?  @updatedAt
+  deletedAt    DateTime?
   title        String
   content      String
   isChecked    Boolean    @default(false)
@@ -84,9 +84,9 @@ model Memo {
 
 model Milestone {
   id             Int            @id @default(autoincrement())
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
-  deletedAt      DateTime
+  createdAt      DateTime?      @default(now())
+  updatedAt      DateTime?      @updatedAt
+  deletedAt      DateTime?
   title          String
   unicode        String
   classification String
