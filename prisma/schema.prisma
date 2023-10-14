@@ -1,6 +1,7 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
+// Main
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,4 +9,103 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+// types
+enum ProgressStatus {
+  None
+  ToDo
+  InProgress
+  Review
+  Completed
+}
+
+// models
+model Tag {
+  id          Int        @id @default(autoincrement())
+  name        String
+  color       String
+  Milestone   Milestone? @relation(fields: [milestoneId], references: [id])
+  milestoneId Int?
+  Task        Task?      @relation(fields: [taskId], references: [id])
+  taskId      Int?
+}
+
+model Link {
+  id          Int        @id @default(autoincrement())
+  name        String
+  href        String
+  Task        Task?      @relation(fields: [taskId], references: [id])
+  taskId      Int?
+  Memo        Memo?      @relation(fields: [memoId], references: [id])
+  memoId      Int?
+  Milestone   Milestone? @relation(fields: [milestoneId], references: [id])
+  milestoneId Int?
+  Project     Project?   @relation(fields: [projectId], references: [id])
+  projectId   Int?
+}
+
+// TODO: comment 필드 추가 필요
+model Task {
+  id           Int            @id @default(autoincrement())
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  deletedAt    DateTime
+  title        String
+  description  String
+  content      String
+  links        Link[]
+  tags         Tag[]
+  progress     ProgressStatus @default(None)
+  priority     Int            @default(3)
+  isBookmarked Boolean        @default(false)
+  Milestone    Milestone?     @relation(fields: [milestoneId], references: [id])
+  milestoneId  Int?
+  Project      Project?       @relation(fields: [projectId], references: [id])
+  projectId    Int?
+}
+
+model Memo {
+  id           Int        @id @default(autoincrement())
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  deletedAt    DateTime
+  title        String
+  content      String
+  isChecked    Boolean    @default(false)
+  isBookmarked Boolean    @default(false)
+  color        String?
+  link         Link[]
+  Milestone    Milestone? @relation(fields: [milestoneId], references: [id])
+  milestoneId  Int?
+  Project      Project?   @relation(fields: [projectId], references: [id])
+  projectId    Int?
+}
+
+model Milestone {
+  id             Int            @id @default(autoincrement())
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  deletedAt      DateTime
+  title          String
+  unicode        String
+  classification String
+  priority       Int            @default(3)
+  progress       ProgressStatus @default(None)
+  isClosed       Boolean        @default(false)
+  isBookmarked   Boolean
+  tags           Tag[]
+  links          Link[]
+  tasks          Task[]
+  memos          Memo[]
+  Project        Project?       @relation(fields: [projectId], references: [id])
+  projectId      Int?
+}
+
+model Project {
+  id         Int         @id @default(autoincrement())
+  milestones Milestone[]
+  tasks      Task[]
+  memos      Memo[]
+  links      Link[]
 }
