@@ -5,6 +5,11 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // CORS
+  app.enableCors({
+    origin: '*',
+  });
+
   // SWAGGER
   const config = new DocumentBuilder()
     .setTitle('Median')
