@@ -22,7 +22,7 @@ enum ProgressStatus {
 
 // models
 model Tag {
-  id          Int        @id @default(autoincrement())
+  id          Int        @id @unique @default(autoincrement())
   name        String
   color       String
   Milestone   Milestone? @relation(fields: [milestoneId], references: [id])
@@ -32,7 +32,7 @@ model Tag {
 }
 
 model Link {
-  id          Int        @id @default(autoincrement())
+  id          Int        @id @unique @default(autoincrement())
   name        String
   href        String
   Task        Task?      @relation(fields: [taskId], references: [id])
@@ -47,15 +47,15 @@ model Link {
 
 // TODO: comment 필드 추가 필요
 model Task {
-  id           Int            @id @default(autoincrement())
+  id           Int            @id @unique @default(autoincrement())
   createdAt    DateTime?      @default(now())
   updatedAt    DateTime?      @updatedAt
   deletedAt    DateTime?
   startAt      DateTime?      @default(now())
   endAt        DateTime?
   title        String
-  description  String
-  content      String
+  description  String?
+  content      String?
   links        Link[]
   tags         Tag[]
   progress     ProgressStatus @default(None)
@@ -68,7 +68,7 @@ model Task {
 }
 
 model Memo {
-  id           Int        @id @default(autoincrement())
+  id           Int        @id @unique @default(autoincrement())
   createdAt    DateTime?  @default(now())
   updatedAt    DateTime?  @updatedAt
   deletedAt    DateTime?
@@ -85,7 +85,7 @@ model Memo {
 }
 
 model Milestone {
-  id             Int            @id @default(autoincrement())
+  id             Int            @id @unique @default(autoincrement())
   createdAt      DateTime?      @default(now())
   updatedAt      DateTime?      @updatedAt
   deletedAt      DateTime?
@@ -107,7 +107,7 @@ model Milestone {
 }
 
 model Project {
-  id         Int         @id @default(autoincrement())
+  id         Int         @id @unique @default(autoincrement())
   milestones Milestone[]
   tasks      Task[]
   memos      Memo[]
