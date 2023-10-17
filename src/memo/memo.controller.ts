@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { CreateMemoReqDto } from './dto/create-memo.req.dto';
 import { MemoService } from './memo.service';
 
@@ -14,5 +23,10 @@ export class MemoController {
   @Post()
   createMemo(@Body() createMemoReqDto: CreateMemoReqDto) {
     return this.memoService.createMemo(createMemoReqDto);
+  }
+
+  @Delete(':id')
+  deleteMemo(@Param('id', ParseIntPipe) id: number) {
+    return this.memoService.deleteMemo(id);
   }
 }
