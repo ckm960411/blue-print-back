@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateMemoReqDto } from './dto/create-memo.req.dto';
+import { UpdateMemoReqDto } from './dto/update-memo.req.dto';
 
 @Injectable()
 export class MemoService {
@@ -33,6 +34,15 @@ export class MemoService {
     });
 
     return memo;
+  }
+
+  async updateMemo(id: number, updateMemoReqDto: UpdateMemoReqDto) {
+    const memo = await this.findOneMemo(id);
+
+    return this.prisma.memo.update({
+      where: { id: memo.id },
+      data: updateMemoReqDto,
+    });
   }
 
   async deleteMemo(id: number) {
