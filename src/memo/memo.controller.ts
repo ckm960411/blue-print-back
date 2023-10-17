@@ -38,20 +38,4 @@ export class MemoController {
   deleteMemo(@Param('id', ParseIntPipe) id: number) {
     return this.memoService.deleteMemo(id);
   }
-
-  @Patch('bookmark/:id')
-  bookmarkMemo(
-    @Param('id', ParseIntPipe) id: number,
-    @Body('bookmark') bookmark: boolean,
-  ) {
-    return this.memoService.bookmarkMemo(id, bookmark);
-  }
-
-  @Patch('check/:id')
-  checkMemo(
-    @Param('id', ParseIntPipe) id: number,
-    @Body('check') check: boolean,
-  ) {
-    return this.memoService.checkMemo(id, check);
-  }
 }
