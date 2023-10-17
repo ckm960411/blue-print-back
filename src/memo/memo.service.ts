@@ -52,4 +52,13 @@ export class MemoService {
       data: { isBookmarked: bookmark },
     });
   }
+
+  async checkMemo(id: number, check: boolean) {
+    const memo = await this.findOneMemo(id);
+
+    return this.prisma.memo.update({
+      where: { id: memo.id },
+      data: { isChecked: check },
+    });
+  }
 }

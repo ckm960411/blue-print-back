@@ -37,4 +37,12 @@ export class MemoController {
   ) {
     return this.memoService.bookmarkMemo(id, bookmark);
   }
+
+  @Patch('check/:id')
+  checkMemo(
+    @Param('id', ParseIntPipe) id: number,
+    @Body('check') check: boolean,
+  ) {
+    return this.memoService.checkMemo(id, check);
+  }
 }
