@@ -4,9 +4,11 @@ import {
   Delete,
   Get,
   Param,
+  ParseBoolPipe,
   ParseIntPipe,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { CreateMemoReqDto } from './dto/create-memo.req.dto';
 import { UpdateMemoReqDto } from './dto/update-memo.req.dto';
@@ -17,8 +19,8 @@ export class MemoController {
   constructor(private readonly memoService: MemoService) {}
 
   @Get()
-  getAllMemos() {
-    return this.memoService.findAllMemos();
+  getAllMemos(@Query('checked', new ParseBoolPipe()) checked: boolean) {
+    return this.memoService.findAllMemos(checked);
   }
 
   @Post()
@@ -28,7 +30,7 @@ export class MemoController {
 
   @Patch(':id')
   updateMemo(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', new ParseIntPipe()) id: number,
     @Body() updateMemoReqDto: UpdateMemoReqDto,
   ) {
     return this.memoService.updateMemo(id, updateMemoReqDto);
