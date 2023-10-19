@@ -13,7 +13,6 @@ datasource db {
 
 // types
 enum ProgressStatus {
-  None
   ToDo
   InProgress
   Review
@@ -58,7 +57,7 @@ model Task {
   content      String?
   links        Link[]
   tags         Tag[]
-  progress     ProgressStatus @default(None)
+  progress     ProgressStatus @default(ToDo)
   priority     Int            @default(3)
   isBookmarked Boolean        @default(false)
   Milestone    Milestone?     @relation(fields: [milestoneId], references: [id])
@@ -95,7 +94,7 @@ model Milestone {
   unicode        String
   classification String
   priority       Int            @default(3)
-  progress       ProgressStatus @default(None)
+  progress       ProgressStatus @default(ToDo)
   isClosed       Boolean        @default(false)
   isBookmarked   Boolean
   tags           Tag[]
