@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { ProgressStatus } from '@prisma/client';
 import { addDays, formatISO } from 'date-fns';
 import { pipe, uniqBy, flatten } from 'lodash/fp';
 import { PrismaService } from '../prisma/prisma.service';
@@ -8,24 +9,28 @@ import { CreateTaskReqDto } from './dto/create-task.req.dto';
 export class TaskService {
   constructor(private prisma: PrismaService) {}
 
-  async findAllTasks() {
+  async findAllTasks(progress?: ProgressStatus) {
     const tasks = await Promise.all([
-      this.findOnlyPriorityFiveTasks(),
-      this.findNearDeadlineTasks(),
-      this.findOnlyBookmarkedTasks(),
-      this.findAllMemosOrderByCraetedAt(),
+      this.findOnlyPriorityFiveTasks(progress),
+      this.findNearDeadlineTasks(progress),
+      this.findOnlyBookmarkedTasks(progress),
+      this.findAllMemosOrderByCreatedAt(progress),
     ]);
     return pipe(flatten, uniqBy('id'))(tasks);
   }
 
-  findOnlyPriorityFiveTasks() {
+  findOnlyPriorityFiveTasks(progress?: ProgressStatus) {
     return this.prisma.task.findMany({
-      where: { deletedAt: null, priority: 5 },
+      where: {
+        deletedAt: null,
+        priority: 5,
+        progress,
+      },
       orderBy: { createdAt: 'asc' },
     });
   }
 
-  findNearDeadlineTasks() {
+  findNearDeadlineTasks(progress?: ProgressStatus) {
     const now = new Date();
     const twoDaysLater = addDays(now, 2);
 
@@ -36,21 +41,26 @@ export class TaskService {
           gte: formatISO(now),
           lte: formatISO(twoDaysLater),
         },
+        progress,
       },
       orderBy: { createdAt: 'asc' },
     });
   }
 
-  findOnlyBookmarkedTasks() {
+  findOnlyBookmarkedTasks(progress?: ProgressStatus) {
     return this.prisma.task.findMany({
-      where: { deletedAt: null, isBookmarked: true },
+      where: {
+        deletedAt: null,
+        isBookmarked: true,
+        progress,
+      },
       orderBy: { createdAt: 'asc' },
     });
   }
 
-  findAllMemosOrderByCraetedAt() {
+  findAllMemosOrderByCreatedAt(progress?: ProgressStatus) {
     return this.prisma.task.findMany({
-      where: { deletedAt: null },
+      where: { deletedAt: null, progress },
       orderBy: { createdAt: 'asc' },
     });
   }

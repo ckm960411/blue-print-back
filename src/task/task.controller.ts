@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { ProgressStatus } from '@prisma/client';
 import { CreateTaskReqDto } from './dto/create-task.req.dto';
 import { TaskService } from './task.service';
 
@@ -7,8 +8,9 @@ export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
   @Get()
-  getAllTasks() {
-    return this.taskService.findAllTasks();
+  getAllTasks(@Query('progress') progress: ProgressStatus) {
+    console.log('progress: ', progress);
+    return this.taskService.findAllTasks(progress);
   }
 
   @Post()
