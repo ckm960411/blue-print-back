@@ -10,7 +10,7 @@ export class MemoService {
   async findAllMemos(checked = false) {
     return this.prisma.memo.findMany({
       where: { deletedAt: null, isChecked: checked || undefined },
-      orderBy: [{ isBookmarked: 'desc' }, { createdAt: 'asc' }],
+      orderBy: [{ isBookmarked: 'desc' }, { createdAt: 'desc' }],
     });
   }
 
