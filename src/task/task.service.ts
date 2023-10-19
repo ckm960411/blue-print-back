@@ -30,17 +30,31 @@ export class TaskService {
     });
   }
 
+  // 이틀 내로 남거나 지난 태스크들을 가져옴
   findNearDeadlineTasks(progress?: ProgressStatus) {
-    const now = new Date();
-    const twoDaysLater = addDays(now, 2);
+    // 오늘의 시작과 끝 시간 계산
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+
+    // 이틀 후의 끝 시간 계산
+    const twoDaysLaterEnd = addDays(todayEnd, 2);
 
     return this.prisma.task.findMany({
       where: {
         deletedAt: null,
-        endAt: {
-          gte: formatISO(now),
-          lte: formatISO(twoDaysLater),
-        },
+        OR: [
+          {
+            endAt: {
+              lte: formatISO(twoDaysLaterEnd),
+              gte: formatISO(todayStart),
+            },
+          },
+          {
+            endAt: { lt: formatISO(todayStart) }, // 이미 지난 항목
+          },
+        ],
         progress,
       },
       orderBy: { createdAt: 'asc' },
