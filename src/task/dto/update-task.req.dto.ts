@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Link } from '@prisma/client';
 import {
   IsBoolean,
   IsDate,
@@ -8,6 +9,7 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { CreateLinkReqDto } from '../../link/dto/create-link.req.dto';
 
 export class UpdateTaskReqDto {
   @IsString()
@@ -40,10 +42,12 @@ export class UpdateTaskReqDto {
   @IsNumber()
   @IsOptional()
   @ApiProperty({ required: false, type: '1 | 2 | 3 | 4| 5' })
-  priority?: Date;
+  priority?: 1 | 2 | 3 | 4 | 5;
 
   @IsBoolean()
   @IsOptional()
   @ApiProperty({ required: false, type: 'boolean' })
   isBookmarked?: boolean;
+
+  links?: CreateLinkReqDto[];
 }
