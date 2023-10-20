@@ -2,17 +2,13 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { ProgressStatus } from '@prisma/client';
 import { addDays, formatISO } from 'date-fns';
 import { pipe, uniqBy, flatten } from 'lodash/fp';
-import { LinkService } from '../link/link.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTaskReqDto } from './dto/create-task.req.dto';
 import { UpdateTaskReqDto } from './dto/update-task.req.dto';
 
 @Injectable()
 export class TaskService {
-  constructor(
-    private prisma: PrismaService,
-    private readonly linkService: LinkService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
   async findAllTasks(progress?: ProgressStatus) {
     const tasks = await Promise.all([
