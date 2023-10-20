@@ -18,4 +18,10 @@ export class LinkService {
     );
     return await Promise.all(promises);
   }
+
+  async deleteLink(id: number) {
+    return await this.prisma.link.delete({
+      where: { id },
+    });
+  }
 }
