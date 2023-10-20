@@ -48,6 +48,4 @@ export class UpdateTaskReqDto {
   @IsOptional()
   @ApiProperty({ required: false, type: 'boolean' })
   isBookmarked?: boolean;
-
-  links?: CreateLinkReqDto[];
 }
