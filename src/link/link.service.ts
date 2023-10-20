@@ -7,6 +7,9 @@ export class LinkService {
   constructor(private prisma: PrismaService) {}
 
   async createLink(links: CreateLinkReqDto[]) {
-    return this.prisma.link.createMany({ data: links });
+    const promises = links.map((link) =>
+      this.prisma.link.create({ data: link }),
+    );
+    return await Promise.all(promises);
   }
 }

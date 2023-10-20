@@ -19,7 +19,6 @@ export class TaskController {
 
   @Get()
   getAllTasks(@Query('progress') progress: ProgressStatus) {
-    console.log('progress: ', progress);
     return this.taskService.findAllTasks(progress);
   }
 
