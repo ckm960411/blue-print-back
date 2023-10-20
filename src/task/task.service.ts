@@ -108,7 +108,7 @@ export class TaskService {
   async updateTask(id: number, updateTaskReqDto: UpdateTaskReqDto) {
     const task = await this.findOneTask(id);
 
-    let links: Link[];
+    let links: Link[] = [];
     if (updateTaskReqDto.links) {
       const found = await this.linkService.findLinksByTaskId(id);
       const created = await this.linkService.createLink(updateTaskReqDto.links);
