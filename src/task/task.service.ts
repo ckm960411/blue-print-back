@@ -2,12 +2,16 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { ProgressStatus } from '@prisma/client';
 import { addDays, formatISO } from 'date-fns';
 import { pipe, uniqBy, flatten } from 'lodash/fp';
+import { LinkService } from '../link/link.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTaskReqDto } from './dto/create-task.req.dto';
 
 @Injectable()
 export class TaskService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly linkService: LinkService,
+  ) {}
 
   async findAllTasks(progress?: ProgressStatus) {
     const tasks = await Promise.all([
@@ -26,6 +30,7 @@ export class TaskService {
         priority: 5,
         progress,
       },
+      include: { links: true },
       orderBy: { createdAt: 'asc' },
     });
   }
@@ -56,6 +61,7 @@ export class TaskService {
         ],
         progress,
       },
+      include: { links: true },
       orderBy: { createdAt: 'asc' },
     });
   }
@@ -67,6 +73,7 @@ export class TaskService {
         isBookmarked: true,
         progress,
       },
+      include: { links: true },
       orderBy: { createdAt: 'asc' },
     });
   }
@@ -74,6 +81,7 @@ export class TaskService {
   async findAllMemosOrderByCreatedAt(progress?: ProgressStatus) {
     return this.prisma.task.findMany({
       where: { deletedAt: null, progress },
+      include: { links: true },
       orderBy: { createdAt: 'asc' },
     });
   }
@@ -81,6 +89,7 @@ export class TaskService {
   async findOneTask(id: number) {
     const task = await this.prisma.task.findUnique({
       where: { id, deletedAt: null },
+      include: { links: true },
     });
 
     if (!task) {
