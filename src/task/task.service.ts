@@ -1,10 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { ProgressStatus } from '@prisma/client';
+import { Link, ProgressStatus } from '@prisma/client';
 import { addDays, formatISO } from 'date-fns';
+import { omit, pick } from 'lodash';
 import { pipe, uniqBy, flatten } from 'lodash/fp';
 import { LinkService } from '../link/link.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTaskReqDto } from './dto/create-task.req.dto';
+import { UpdateTaskReqDto } from './dto/update-task.req.dto';
 
 @Injectable()
 export class TaskService {
@@ -103,12 +105,27 @@ export class TaskService {
     return this.prisma.task.create({ data: createTaskReqDto });
   }
 
-  async updateTask(id: number, updateTaskReqDto: any) {
+  async updateTask(id: number, updateTaskReqDto: UpdateTaskReqDto) {
     const task = await this.findOneTask(id);
+
+    let links: Link[];
+    if (updateTaskReqDto.links) {
+      const found = await this.linkService.findLinksByTaskId(id);
+      const created = await this.linkService.createLink(updateTaskReqDto.links);
+      links = [...found, ...created];
+    }
 
     return this.prisma.task.update({
       where: { id: task.id },
-      data: updateTaskReqDto,
+      data: {
+        ...omit(updateTaskReqDto, 'links'),
+        links: {
+          update: links.map((link) => ({
+            where: { id: link.id },
+            data: pick(link, 'name', 'href'),
+          })),
+        },
+      },
     });
   }
 }
