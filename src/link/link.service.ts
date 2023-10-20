@@ -6,12 +6,6 @@ import { CreateLinkReqDto } from './dto/create-link.req.dto';
 export class LinkService {
   constructor(private prisma: PrismaService) {}
 
-  async findLinksByTaskId(taskId: number) {
-    return this.prisma.link.findMany({
-      where: { taskId },
-    });
-  }
-
   async createOneLink(data: CreateLinkReqDto) {
     return this.prisma.link.create({ data });
   }
