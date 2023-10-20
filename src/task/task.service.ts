@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { ProgressStatus } from '@prisma/client';
 import { addDays, formatISO } from 'date-fns';
 import { pipe, uniqBy, flatten } from 'lodash/fp';
@@ -19,7 +19,7 @@ export class TaskService {
     return pipe(flatten, uniqBy('id'))(tasks);
   }
 
-  findOnlyPriorityFiveTasks(progress?: ProgressStatus) {
+  async findOnlyPriorityFiveTasks(progress?: ProgressStatus) {
     return this.prisma.task.findMany({
       where: {
         deletedAt: null,
@@ -31,7 +31,7 @@ export class TaskService {
   }
 
   // 이틀 내로 남거나 지난 태스크들을 가져옴
-  findNearDeadlineTasks(progress?: ProgressStatus) {
+  async findNearDeadlineTasks(progress?: ProgressStatus) {
     // 오늘의 시작과 끝 시간 계산
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
@@ -51,9 +51,8 @@ export class TaskService {
               gte: formatISO(todayStart),
             },
           },
-          {
-            endAt: { lt: formatISO(todayStart) }, // 이미 지난 항목
-          },
+          // 이미 지난 항목
+          { endAt: { lt: formatISO(todayStart) } },
         ],
         progress,
       },
@@ -61,7 +60,7 @@ export class TaskService {
     });
   }
 
-  findOnlyBookmarkedTasks(progress?: ProgressStatus) {
+  async findOnlyBookmarkedTasks(progress?: ProgressStatus) {
     return this.prisma.task.findMany({
       where: {
         deletedAt: null,
@@ -72,14 +71,35 @@ export class TaskService {
     });
   }
 
-  findAllMemosOrderByCreatedAt(progress?: ProgressStatus) {
+  async findAllMemosOrderByCreatedAt(progress?: ProgressStatus) {
     return this.prisma.task.findMany({
       where: { deletedAt: null, progress },
       orderBy: { createdAt: 'asc' },
     });
   }
 
-  createTask(createTaskReqDto: CreateTaskReqDto) {
+  async findOneTask(id: number) {
+    const task = await this.prisma.task.findUnique({
+      where: { id, deletedAt: null },
+    });
+
+    if (!task) {
+      throw new NotFoundException('찾는 태스크가 존재하지 않습니다.');
+    }
+
+    return task;
+  }
+
+  async createTask(createTaskReqDto: CreateTaskReqDto) {
     return this.prisma.task.create({ data: createTaskReqDto });
+  }
+
+  async updateTask(id: number, updateTaskReqDto: any) {
+    const task = await this.findOneTask(id);
+
+    return this.prisma.task.update({
+      where: { id: task.id },
+      data: updateTaskReqDto,
+    });
   }
 }
