@@ -1,15 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Link } from '@prisma/client';
 import {
   IsBoolean,
-  IsDate,
+  IsDateString,
   IsNumber,
   IsOptional,
   IsString,
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { CreateLinkReqDto } from '../../link/dto/create-link.req.dto';
 
 export class UpdateTaskReqDto {
   @IsString()
@@ -29,12 +27,12 @@ export class UpdateTaskReqDto {
   @ApiProperty({ required: false })
   content?: string;
 
-  @IsDate()
+  @IsDateString()
   @IsOptional()
   @ApiProperty({ required: false, type: 'Date' })
   startAt?: Date;
 
-  @IsDate()
+  @IsDateString()
   @IsOptional()
   @ApiProperty({ required: false, type: 'Date' })
   endAt?: Date;
