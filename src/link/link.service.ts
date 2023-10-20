@@ -12,6 +12,10 @@ export class LinkService {
     });
   }
 
+  async createOneLink(data: CreateLinkReqDto) {
+    return this.prisma.link.create({ data });
+  }
+
   async createLink(links: CreateLinkReqDto[]) {
     const promises = links.map((link) =>
       this.prisma.link.create({ data: link }),
@@ -20,8 +24,6 @@ export class LinkService {
   }
 
   async deleteLink(id: number) {
-    return await this.prisma.link.delete({
-      where: { id },
-    });
+    return this.prisma.link.delete({ where: { id } });
   }
 }
