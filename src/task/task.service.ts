@@ -27,7 +27,10 @@ export class TaskService {
         priority: 5,
         progress,
       },
-      include: { links: true, tags: true },
+      include: {
+        links: true,
+        tags: { orderBy: { id: 'asc' } },
+      },
       orderBy: { createdAt: 'asc' },
     });
   }
@@ -58,7 +61,10 @@ export class TaskService {
         ],
         progress,
       },
-      include: { links: true, tags: true },
+      include: {
+        links: true,
+        tags: { orderBy: { id: 'asc' } },
+      },
       orderBy: { createdAt: 'asc' },
     });
   }
@@ -70,7 +76,10 @@ export class TaskService {
         isBookmarked: true,
         progress,
       },
-      include: { links: true, tags: true },
+      include: {
+        links: true,
+        tags: { orderBy: { id: 'asc' } },
+      },
       orderBy: { createdAt: 'asc' },
     });
   }
@@ -78,7 +87,10 @@ export class TaskService {
   async findAllMemosOrderByCreatedAt(progress?: ProgressStatus) {
     return this.prisma.task.findMany({
       where: { deletedAt: null, progress },
-      include: { links: true, tags: true },
+      include: {
+        links: true,
+        tags: { orderBy: { id: 'asc' } },
+      },
       orderBy: { createdAt: 'asc' },
     });
   }
@@ -86,7 +98,10 @@ export class TaskService {
   async findOneTask(id: number) {
     const task = await this.prisma.task.findUnique({
       where: { id, deletedAt: null },
-      include: { links: true, tags: true },
+      include: {
+        links: true,
+        tags: { orderBy: { id: 'asc' } },
+      },
     });
 
     if (!task) {
