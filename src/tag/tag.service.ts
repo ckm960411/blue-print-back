@@ -16,4 +16,8 @@ export class TagService {
       data,
     });
   }
+
+  async deleteTag(id: number) {
+    return this.prisma.tag.delete({ where: { id } });
+  }
 }

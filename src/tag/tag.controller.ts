@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Param,
   ParseIntPipe,
   Patch,
@@ -24,5 +25,10 @@ export class TagController {
     @Body() updateTagReqDto: Partial<CreateTagReqDto>,
   ) {
     return this.tagServce.updateTag(id, updateTagReqDto);
+  }
+
+  @Delete(':id')
+  deleteTag(@Param('id', new ParseIntPipe()) id: number) {
+    return this.tagServce.deleteTag(id);
   }
 }
