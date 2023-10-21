@@ -9,4 +9,11 @@ export class TagService {
   async createTag(data: CreateTagReqDto) {
     return this.prisma.tag.create({ data });
   }
+
+  async updateTag(id: number, data: Partial<CreateTagReqDto>) {
+    return this.prisma.tag.update({
+      where: { id },
+      data,
+    });
+  }
 }
