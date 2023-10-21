@@ -90,7 +90,7 @@ model Milestone {
   startAt        DateTime?      @default(now())
   endAt          DateTime?
   title          String?        @default("마일스톤 이름")
-  unicode        String?
+  unicode        String?        @default("1f4bb")
   classification String?
   priority       Int            @default(3)
   progress       ProgressStatus @default(ToDo)
