@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -33,5 +34,10 @@ export class TaskController {
     @Body() updateTaskReqDto: UpdateTaskReqDto,
   ) {
     return this.taskService.updateTask(id, updateTaskReqDto);
+  }
+
+  @Delete(':id')
+  deleteTask(@Param('id', new ParseIntPipe()) id: number) {
+    return this.taskService.deleteTask(id);
   }
 }
