@@ -44,7 +44,6 @@ model Link {
   projectId   Int?
 }
 
-// TODO: comment 필드 추가 필요
 model Task {
   id           Int            @id @unique @default(autoincrement())
   createdAt    DateTime?      @default(now())
@@ -90,13 +89,13 @@ model Milestone {
   deletedAt      DateTime?
   startAt        DateTime?      @default(now())
   endAt          DateTime?
-  title          String
-  unicode        String
-  classification String
+  title          String?        @default("마일스톤 이름")
+  unicode        String?
+  classification String?
   priority       Int            @default(3)
   progress       ProgressStatus @default(ToDo)
   isClosed       Boolean        @default(false)
-  isBookmarked   Boolean
+  isBookmarked   Boolean        @default(false)
   tags           Tag[]
   links          Link[]
   tasks          Task[]
