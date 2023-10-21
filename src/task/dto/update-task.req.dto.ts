@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { ProgressStatus } from '@prisma/client';
 import {
   IsBoolean,
   IsDateString,
@@ -36,6 +37,10 @@ export class UpdateTaskReqDto {
   @IsOptional()
   @ApiProperty({ required: false, type: 'Date' })
   endAt?: Date;
+
+  @IsOptional()
+  @ApiProperty({ required: false, type: 'ProgressStatus ' })
+  progress?: ProgressStatus;
 
   @IsNumber()
   @IsOptional()
