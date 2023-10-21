@@ -23,6 +23,11 @@ export class TaskController {
     return this.taskService.findAllTasks(progress);
   }
 
+  @Get('urgent')
+  getAllUrgentTasks() {
+    return this.taskService.findAllUrgentTasks();
+  }
+
   @Post()
   createTask(@Body() createTaskReqDto: CreateTaskReqDto) {
     return this.taskService.createTask(createTaskReqDto);

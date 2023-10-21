@@ -111,6 +111,23 @@ export class TaskService {
     return task;
   }
 
+  async findAllUrgentTasks() {
+    const tasks = await this.prisma.task.findMany({
+      where: {
+        deletedAt: null,
+        progress: {
+          not: ProgressStatus.Completed,
+        },
+        priority: 5,
+      },
+      include: {
+        links: true,
+        tags: { orderBy: { id: 'asc' } },
+      },
+    });
+    return tasks;
+  }
+
   async createTask(createTaskReqDto: CreateTaskReqDto) {
     return this.prisma.task.create({ data: createTaskReqDto });
   }
