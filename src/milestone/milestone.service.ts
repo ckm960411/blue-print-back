@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Milestone } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { UpdateMilestoneReqDto } from './dto/update-milestone.req.dto';
 
 @Injectable()
 export class MilestoneService {
@@ -21,6 +22,16 @@ export class MilestoneService {
   async createMilestone() {
     return this.prisma.milestone.create({
       data: {} as Milestone,
+    });
+  }
+
+  async updateMilestone(
+    id: number,
+    updateMilestoneReqDto: UpdateMilestoneReqDto,
+  ) {
+    return this.prisma.milestone.update({
+      where: { id },
+      data: updateMilestoneReqDto,
     });
   }
 }
