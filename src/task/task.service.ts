@@ -15,7 +15,7 @@ export class TaskService {
       this.findOnlyPriorityFiveTasks(progress),
       this.findNearDeadlineTasks(progress),
       this.findOnlyBookmarkedTasks(progress),
-      this.findAllMemosOrderByCreatedAt(progress),
+      this.findAllTasksOrderByCreatedAt(progress),
     ]);
     return pipe(flatten, uniqBy('id'))(tasks);
   }
@@ -84,7 +84,7 @@ export class TaskService {
     });
   }
 
-  async findAllMemosOrderByCreatedAt(progress?: ProgressStatus) {
+  async findAllTasksOrderByCreatedAt(progress?: ProgressStatus) {
     return this.prisma.task.findMany({
       where: { deletedAt: null, progress },
       include: {

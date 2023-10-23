@@ -7,7 +7,9 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
+import { ProgressStatus } from '@prisma/client';
 import { UpdateMilestoneReqDto } from './dto/update-milestone.req.dto';
 import { MilestoneService } from './milestone.service';
 
@@ -16,8 +18,8 @@ export class MilestoneController {
   constructor(private readonly milestoneService: MilestoneService) {}
 
   @Get()
-  getAllMilestones() {
-    return this.milestoneService.findAllMilestones();
+  getAllMilestones(@Query('progress') progress: ProgressStatus) {
+    return this.milestoneService.findAllMilestones(progress);
   }
 
   @Post()
