@@ -10,6 +10,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
+import { OptionalIntPipe } from '../../utils/decorators/optional-int.pipe';
 import { CreateMemoReqDto } from './dto/create-memo.req.dto';
 import { UpdateMemoReqDto } from './dto/update-memo.req.dto';
 import { MemoService } from './memo.service';
@@ -19,8 +20,11 @@ export class MemoController {
   constructor(private readonly memoService: MemoService) {}
 
   @Get()
-  getAllMemos(@Query('checked', new ParseBoolPipe()) checked: boolean) {
-    return this.memoService.findAllMemos(checked);
+  getAllMemos(
+    @Query('checked', new ParseBoolPipe()) checked: boolean,
+    @Query('milestoneId', new OptionalIntPipe()) milestoneId?: number,
+  ) {
+    return this.memoService.findAllMemos(checked, milestoneId);
   }
 
   @Post()

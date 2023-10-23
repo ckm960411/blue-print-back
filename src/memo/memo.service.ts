@@ -7,9 +7,13 @@ import { UpdateMemoReqDto } from './dto/update-memo.req.dto';
 export class MemoService {
   constructor(private prisma: PrismaService) {}
 
-  async findAllMemos(checked = false) {
+  async findAllMemos(checked = false, milestoneId?: number) {
     return this.prisma.memo.findMany({
-      where: { deletedAt: null, isChecked: checked || undefined },
+      where: {
+        deletedAt: null,
+        isChecked: checked || undefined,
+        milestoneId,
+      },
       orderBy: [{ isBookmarked: 'desc' }, { createdAt: 'desc' }],
     });
   }
