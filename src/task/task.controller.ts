@@ -34,6 +34,14 @@ export class TaskController {
     return this.taskService.findAllUrgentTasks(milestoneId);
   }
 
+  @Get('month')
+  findThisMonthTasks(
+    @Query('year', new OptionalIntPipe()) year?: number,
+    @Query('month', new OptionalIntPipe()) month?: number,
+  ) {
+    return this.taskService.findThisMonthTasks(year, month);
+  }
+
   @Post()
   createTask(@Body() createTaskReqDto: CreateTaskReqDto) {
     return this.taskService.createTask(createTaskReqDto);

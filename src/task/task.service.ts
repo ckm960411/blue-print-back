@@ -1,6 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ProgressStatus } from '@prisma/client';
-import { addDays, formatISO } from 'date-fns';
+import {
+  addDays,
+  endOfMonth,
+  formatISO,
+  getMonth,
+  getYear,
+  lastDayOfMonth,
+  startOfMonth,
+} from 'date-fns';
 import { pipe, uniqBy, flatten } from 'lodash/fp';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTaskReqDto } from './dto/create-task.req.dto';
@@ -139,6 +147,29 @@ export class TaskService {
       },
     });
     return tasks;
+  }
+
+  async findThisMonthTasks(year?: number, month?: number) {
+    const _year = year ?? getYear(new Date());
+    const _month = month ? month - 1 : getMonth(new Date());
+    const date = new Date(_year, _month);
+    const firstDayOfMonth = startOfMonth(date);
+    const lastDayOfMonth = endOfMonth(date);
+
+    const data = await this.prisma.task.findMany({
+      where: {
+        deletedAt: null,
+        progress: {
+          not: ProgressStatus.Completed,
+        },
+        OR: [
+          { startAt: { gte: firstDayOfMonth, lte: lastDayOfMonth } },
+          { endAt: { gte: firstDayOfMonth, lte: lastDayOfMonth } },
+        ],
+      },
+    });
+
+    return data;
   }
 
   async createTask(createTaskReqDto: CreateTaskReqDto) {
