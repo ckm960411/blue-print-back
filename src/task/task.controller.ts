@@ -10,6 +10,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { ProgressStatus } from '@prisma/client';
+import { OptionalIntPipe } from '../../utils/decorators/optional-int.pipe';
 import { CreateTaskReqDto } from './dto/create-task.req.dto';
 import { UpdateTaskReqDto } from './dto/update-task.req.dto';
 import { TaskService } from './task.service';
@@ -19,8 +20,11 @@ export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
   @Get()
-  getAllTasks(@Query('progress') progress: ProgressStatus) {
-    return this.taskService.findAllTasks(progress);
+  getAllTasks(
+    @Query('progress') progress: ProgressStatus,
+    @Query('milestoneId', new OptionalIntPipe()) milestoneId?: number,
+  ) {
+    return this.taskService.findAllTasks(progress, milestoneId);
   }
 
   @Get('urgent')

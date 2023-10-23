@@ -10,22 +10,26 @@ import { UpdateTaskReqDto } from './dto/update-task.req.dto';
 export class TaskService {
   constructor(private prisma: PrismaService) {}
 
-  async findAllTasks(progress?: ProgressStatus) {
+  async findAllTasks(progress?: ProgressStatus, milestoneId?: number) {
     const tasks = await Promise.all([
-      this.findOnlyPriorityFiveTasks(progress),
-      this.findNearDeadlineTasks(progress),
-      this.findOnlyBookmarkedTasks(progress),
-      this.findAllTasksOrderByCreatedAt(progress),
+      this.findOnlyPriorityFiveTasks(progress, milestoneId),
+      this.findNearDeadlineTasks(progress, milestoneId),
+      this.findOnlyBookmarkedTasks(progress, milestoneId),
+      this.findAllTasksOrderByCreatedAt(progress, milestoneId),
     ]);
     return pipe(flatten, uniqBy('id'))(tasks);
   }
 
-  async findOnlyPriorityFiveTasks(progress?: ProgressStatus) {
+  async findOnlyPriorityFiveTasks(
+    progress?: ProgressStatus,
+    milestoneId?: number,
+  ) {
     return this.prisma.task.findMany({
       where: {
         deletedAt: null,
         priority: 5,
         progress,
+        milestoneId,
       },
       include: {
         links: true,
@@ -36,7 +40,7 @@ export class TaskService {
   }
 
   // 이틀 내로 남거나 지난 태스크들을 가져옴
-  async findNearDeadlineTasks(progress?: ProgressStatus) {
+  async findNearDeadlineTasks(progress?: ProgressStatus, milestoneId?: number) {
     // 오늘의 시작과 끝 시간 계산
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
@@ -60,6 +64,7 @@ export class TaskService {
           { endAt: { lt: formatISO(todayStart) } },
         ],
         progress,
+        milestoneId,
       },
       include: {
         links: true,
@@ -69,12 +74,16 @@ export class TaskService {
     });
   }
 
-  async findOnlyBookmarkedTasks(progress?: ProgressStatus) {
+  async findOnlyBookmarkedTasks(
+    progress?: ProgressStatus,
+    milestoneId?: number,
+  ) {
     return this.prisma.task.findMany({
       where: {
         deletedAt: null,
         isBookmarked: true,
         progress,
+        milestoneId,
       },
       include: {
         links: true,
@@ -84,9 +93,12 @@ export class TaskService {
     });
   }
 
-  async findAllTasksOrderByCreatedAt(progress?: ProgressStatus) {
+  async findAllTasksOrderByCreatedAt(
+    progress?: ProgressStatus,
+    milestoneId?: number,
+  ) {
     return this.prisma.task.findMany({
-      where: { deletedAt: null, progress },
+      where: { deletedAt: null, progress, milestoneId },
       include: {
         links: true,
         tags: { orderBy: { id: 'asc' } },
