@@ -16,7 +16,7 @@ export class MilestoneService {
         tasks: true,
         memos: true,
       },
-      orderBy: { createdAt: 'asc' },
+      orderBy: [{ priority: 'desc' }, { createdAt: 'asc' }],
     });
   }
 
