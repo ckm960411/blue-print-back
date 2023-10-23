@@ -123,7 +123,7 @@ export class TaskService {
     return task;
   }
 
-  async findAllUrgentTasks() {
+  async findAllUrgentTasks(milestoneId?: number) {
     const tasks = await this.prisma.task.findMany({
       where: {
         deletedAt: null,
@@ -131,6 +131,7 @@ export class TaskService {
           not: ProgressStatus.Completed,
         },
         priority: 5,
+        milestoneId,
       },
       include: {
         links: true,

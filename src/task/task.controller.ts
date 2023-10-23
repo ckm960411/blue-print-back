@@ -28,8 +28,10 @@ export class TaskController {
   }
 
   @Get('urgent')
-  getAllUrgentTasks() {
-    return this.taskService.findAllUrgentTasks();
+  getAllUrgentTasks(
+    @Query('milestoneId', new OptionalIntPipe()) milestoneId?: number,
+  ) {
+    return this.taskService.findAllUrgentTasks(milestoneId);
   }
 
   @Post()
