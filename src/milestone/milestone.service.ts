@@ -16,6 +16,7 @@ export class MilestoneService {
         tasks: true,
         memos: true,
       },
+      orderBy: { createdAt: 'asc' },
     });
   }
 
