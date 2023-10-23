@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
+import {
+  IsNumber,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 export class CreateMemoReqDto {
   @IsString()
@@ -17,4 +23,9 @@ export class CreateMemoReqDto {
   @IsOptional()
   @ApiProperty({ required: false, example: '#001487' })
   color?: string;
+
+  @IsNumber()
+  @IsOptional()
+  @ApiProperty({ required: false })
+  milestoneId?: number;
 }
