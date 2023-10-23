@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -30,5 +31,10 @@ export class MilestoneController {
     @Body() updateMilestoneReqDto: UpdateMilestoneReqDto,
   ) {
     return this.milestoneService.updateMilestone(id, updateMilestoneReqDto);
+  }
+
+  @Delete(':id')
+  deleteMilestone(@Param('id', new ParseIntPipe()) id: number) {
+    return this.milestoneService.deleteMilestone(id);
   }
 }

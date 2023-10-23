@@ -35,4 +35,8 @@ export class MilestoneService {
       data: updateMilestoneReqDto,
     });
   }
+
+  async deleteMilestone(id: number) {
+    return this.prisma.milestone.delete({ where: { id } });
+  }
 }
