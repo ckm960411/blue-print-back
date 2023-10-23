@@ -24,9 +24,9 @@ model Tag {
   id          Int        @id @unique @default(autoincrement())
   name        String
   color       String
-  Milestone   Milestone? @relation(fields: [milestoneId], references: [id])
+  Milestone   Milestone? @relation(fields: [milestoneId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   milestoneId Int?
-  Task        Task?      @relation(fields: [taskId], references: [id])
+  Task        Task?      @relation(fields: [taskId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   taskId      Int?
 }
 
@@ -34,13 +34,13 @@ model Link {
   id          Int        @id @unique @default(autoincrement())
   name        String
   href        String
-  Task        Task?      @relation(fields: [taskId], references: [id])
+  Task        Task?      @relation(fields: [taskId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   taskId      Int?
-  Memo        Memo?      @relation(fields: [memoId], references: [id])
+  Memo        Memo?      @relation(fields: [memoId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   memoId      Int?
-  Milestone   Milestone? @relation(fields: [milestoneId], references: [id])
+  Milestone   Milestone? @relation(fields: [milestoneId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   milestoneId Int?
-  Project     Project?   @relation(fields: [projectId], references: [id])
+  Project     Project?   @relation(fields: [projectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   projectId   Int?
 }
 
@@ -59,9 +59,9 @@ model Task {
   progress     ProgressStatus @default(ToDo)
   priority     Int            @default(3)
   isBookmarked Boolean        @default(false)
-  Milestone    Milestone?     @relation(fields: [milestoneId], references: [id])
+  Milestone    Milestone?     @relation(fields: [milestoneId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   milestoneId  Int?
-  Project      Project?       @relation(fields: [projectId], references: [id])
+  Project      Project?       @relation(fields: [projectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   projectId    Int?
 }
 
@@ -76,9 +76,9 @@ model Memo {
   isBookmarked Boolean    @default(false)
   color        String?
   link         Link[]
-  Milestone    Milestone? @relation(fields: [milestoneId], references: [id])
+  Milestone    Milestone? @relation(fields: [milestoneId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   milestoneId  Int?
-  Project      Project?   @relation(fields: [projectId], references: [id])
+  Project      Project?   @relation(fields: [projectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   projectId    Int?
 }
 
@@ -100,7 +100,7 @@ model Milestone {
   links          Link[]
   tasks          Task[]
   memos          Memo[]
-  Project        Project?       @relation(fields: [projectId], references: [id])
+  Project        Project?       @relation(fields: [projectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   projectId      Int?
 }
 
