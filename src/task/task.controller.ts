@@ -22,24 +22,27 @@ export class TaskController {
   @Get()
   getAllTasks(
     @Query('progress') progress: ProgressStatus,
+    @Query('projectId', new OptionalIntPipe()) projectId?: number,
     @Query('milestoneId', new OptionalIntPipe()) milestoneId?: number,
   ) {
-    return this.taskService.findAllTasks(progress, milestoneId);
+    return this.taskService.findAllTasks(progress, projectId, milestoneId);
   }
 
   @Get('urgent')
   getAllUrgentTasks(
+    @Query('projectId', new OptionalIntPipe()) projectId?: number,
     @Query('milestoneId', new OptionalIntPipe()) milestoneId?: number,
   ) {
-    return this.taskService.findAllUrgentTasks(milestoneId);
+    return this.taskService.findAllUrgentTasks(projectId, milestoneId);
   }
 
   @Get('month')
   findThisMonthTasks(
+    @Query('projectId', new OptionalIntPipe()) projectId?: number,
     @Query('year', new OptionalIntPipe()) year?: number,
     @Query('month', new OptionalIntPipe()) month?: number,
   ) {
-    return this.taskService.findThisMonthTasks(year, month);
+    return this.taskService.findThisMonthTasks(projectId, year, month);
   }
 
   @Post()

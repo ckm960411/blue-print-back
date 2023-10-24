@@ -6,7 +6,6 @@ import {
   formatISO,
   getMonth,
   getYear,
-  lastDayOfMonth,
   startOfMonth,
 } from 'date-fns';
 import { pipe, uniqBy, flatten } from 'lodash/fp';
@@ -18,18 +17,23 @@ import { UpdateTaskReqDto } from './dto/update-task.req.dto';
 export class TaskService {
   constructor(private prisma: PrismaService) {}
 
-  async findAllTasks(progress?: ProgressStatus, milestoneId?: number) {
+  async findAllTasks(
+    progress?: ProgressStatus,
+    projectId?: number,
+    milestoneId?: number,
+  ) {
     const tasks = await Promise.all([
-      this.findOnlyPriorityFiveTasks(progress, milestoneId),
-      this.findNearDeadlineTasks(progress, milestoneId),
-      this.findOnlyBookmarkedTasks(progress, milestoneId),
-      this.findAllTasksOrderByCreatedAt(progress, milestoneId),
+      this.findOnlyPriorityFiveTasks(progress, projectId, milestoneId),
+      this.findNearDeadlineTasks(progress, projectId, milestoneId),
+      this.findOnlyBookmarkedTasks(progress, projectId, milestoneId),
+      this.findAllTasksOrderByCreatedAt(progress, projectId, milestoneId),
     ]);
     return pipe(flatten, uniqBy('id'))(tasks);
   }
 
   async findOnlyPriorityFiveTasks(
     progress?: ProgressStatus,
+    projectId?: number,
     milestoneId?: number,
   ) {
     return this.prisma.task.findMany({
@@ -38,6 +42,7 @@ export class TaskService {
         priority: 5,
         progress,
         milestoneId,
+        projectId,
       },
       include: {
         links: true,
@@ -48,7 +53,11 @@ export class TaskService {
   }
 
   // 이틀 내로 남거나 지난 태스크들을 가져옴
-  async findNearDeadlineTasks(progress?: ProgressStatus, milestoneId?: number) {
+  async findNearDeadlineTasks(
+    progress?: ProgressStatus,
+    projectId?: number,
+    milestoneId?: number,
+  ) {
     // 오늘의 시작과 끝 시간 계산
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
@@ -73,6 +82,7 @@ export class TaskService {
         ],
         progress,
         milestoneId,
+        projectId,
       },
       include: {
         links: true,
@@ -84,6 +94,7 @@ export class TaskService {
 
   async findOnlyBookmarkedTasks(
     progress?: ProgressStatus,
+    projectId?: number,
     milestoneId?: number,
   ) {
     return this.prisma.task.findMany({
@@ -92,6 +103,7 @@ export class TaskService {
         isBookmarked: true,
         progress,
         milestoneId,
+        projectId,
       },
       include: {
         links: true,
@@ -103,10 +115,11 @@ export class TaskService {
 
   async findAllTasksOrderByCreatedAt(
     progress?: ProgressStatus,
+    projectId?: number,
     milestoneId?: number,
   ) {
     return this.prisma.task.findMany({
-      where: { deletedAt: null, progress, milestoneId },
+      where: { deletedAt: null, progress, milestoneId, projectId },
       include: {
         links: true,
         tags: { orderBy: { id: 'asc' } },
@@ -115,9 +128,9 @@ export class TaskService {
     });
   }
 
-  async findOneTask(id: number) {
+  async findOneTask(id: number, projectId?: number) {
     const task = await this.prisma.task.findUnique({
-      where: { id, deletedAt: null },
+      where: { id, deletedAt: null, projectId },
       include: {
         links: true,
         tags: { orderBy: { id: 'asc' } },
@@ -131,7 +144,7 @@ export class TaskService {
     return task;
   }
 
-  async findAllUrgentTasks(milestoneId?: number) {
+  async findAllUrgentTasks(projectId?: number, milestoneId?: number) {
     const tasks = await this.prisma.task.findMany({
       where: {
         deletedAt: null,
@@ -140,6 +153,7 @@ export class TaskService {
         },
         priority: 5,
         milestoneId,
+        projectId,
       },
       include: {
         links: true,
@@ -149,7 +163,7 @@ export class TaskService {
     return tasks;
   }
 
-  async findThisMonthTasks(year?: number, month?: number) {
+  async findThisMonthTasks(projectId?: number, year?: number, month?: number) {
     const _year = year ?? getYear(new Date());
     const _month = month ? month - 1 : getMonth(new Date());
     const date = new Date(_year, _month);
@@ -162,6 +176,7 @@ export class TaskService {
         progress: {
           not: ProgressStatus.Completed,
         },
+        projectId,
         OR: [
           { startAt: { gte: firstDayOfMonth, lte: lastDayOfMonth } },
           { endAt: { gte: firstDayOfMonth, lte: lastDayOfMonth } },
@@ -178,7 +193,7 @@ export class TaskService {
   }
 
   async updateTask(id: number, updateTaskReqDto: UpdateTaskReqDto) {
-    const task = await this.findOneTask(id);
+    const task = await this.findOneTask(id, updateTaskReqDto?.projectId);
 
     return this.prisma.task.update({
       where: { id: task.id },

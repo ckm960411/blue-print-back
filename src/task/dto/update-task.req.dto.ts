@@ -51,4 +51,9 @@ export class UpdateTaskReqDto {
   @IsOptional()
   @ApiProperty({ required: false, type: 'boolean' })
   isBookmarked?: boolean;
+
+  @IsNumber()
+  @IsOptional()
+  @ApiProperty({ required: false, type: 'number' })
+  projectId?: number;
 }

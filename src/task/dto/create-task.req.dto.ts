@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
+import {
+  IsNumber,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 export class CreateTaskReqDto {
   @IsString()
@@ -17,4 +23,9 @@ export class CreateTaskReqDto {
   @IsOptional()
   @ApiProperty({ required: false, type: 'string' })
   content?: string;
+
+  @IsNumber()
+  @IsOptional()
+  @ApiProperty({ required: false, type: 'number' })
+  projectId?: number;
 }
