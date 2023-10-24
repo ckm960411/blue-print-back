@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsBoolean,
+  IsNumber,
   IsOptional,
   IsString,
   MaxLength,
@@ -35,4 +36,9 @@ export class UpdateMemoReqDto {
   @IsOptional()
   @ApiProperty({ required: false })
   color?: string;
+
+  @IsNumber()
+  @IsOptional()
+  @ApiProperty({ required: false })
+  projectId?: number;
 }

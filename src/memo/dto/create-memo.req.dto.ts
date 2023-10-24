@@ -28,4 +28,9 @@ export class CreateMemoReqDto {
   @IsOptional()
   @ApiProperty({ required: false })
   milestoneId?: number;
+
+  @IsNumber()
+  @IsOptional()
+  @ApiProperty({ required: false })
+  projectId?: number;
 }

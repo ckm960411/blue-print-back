@@ -7,20 +7,25 @@ import { UpdateMemoReqDto } from './dto/update-memo.req.dto';
 export class MemoService {
   constructor(private prisma: PrismaService) {}
 
-  async findAllMemos(checked = false, milestoneId?: number) {
+  async findAllMemos(
+    checked = false,
+    projectId?: number,
+    milestoneId?: number,
+  ) {
     return this.prisma.memo.findMany({
       where: {
         deletedAt: null,
         isChecked: checked || undefined,
         milestoneId,
+        projectId,
       },
       orderBy: [{ isBookmarked: 'desc' }, { createdAt: 'desc' }],
     });
   }
 
-  async findOneMemo(id: number) {
+  async findOneMemo(id: number, projectId?: number) {
     const memo = await this.prisma.memo.findUnique({
-      where: { id, deletedAt: null },
+      where: { id, deletedAt: null, projectId },
     });
 
     if (!memo) {
@@ -41,7 +46,7 @@ export class MemoService {
   }
 
   async updateMemo(id: number, updateMemoReqDto: UpdateMemoReqDto) {
-    const memo = await this.findOneMemo(id);
+    const memo = await this.findOneMemo(id, updateMemoReqDto?.projectId);
 
     return this.prisma.memo.update({
       where: { id: memo.id },

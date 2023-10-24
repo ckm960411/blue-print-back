@@ -22,9 +22,10 @@ export class MemoController {
   @Get()
   getAllMemos(
     @Query('checked', new ParseBoolPipe()) checked: boolean,
+    @Query('projectId', new OptionalIntPipe()) projectId?: number,
     @Query('milestoneId', new OptionalIntPipe()) milestoneId?: number,
   ) {
-    return this.memoService.findAllMemos(checked, milestoneId);
+    return this.memoService.findAllMemos(checked, projectId, milestoneId);
   }
 
   @Post()
