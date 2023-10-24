@@ -9,22 +9,26 @@ import { pipe, uniqBy, flatten } from 'lodash/fp';
 export class MilestoneService {
   constructor(private prisma: PrismaService) {}
 
-  async findAllMilestones(progress?: ProgressStatus) {
+  async findAllMilestones(progress?: ProgressStatus, projectId?: number) {
     const milestones = await Promise.all([
-      this.findOnlyPriorityFiveMilestones(progress),
-      this.findNearDeadlineMilestones(progress),
-      this.findOnlyBookmarkedMilestones(progress),
-      this.findAllMilestonesByCreatedAt(progress),
+      this.findOnlyPriorityFiveMilestones(progress, projectId),
+      this.findNearDeadlineMilestones(progress, projectId),
+      this.findOnlyBookmarkedMilestones(progress, projectId),
+      this.findAllMilestonesByCreatedAt(progress, projectId),
     ]);
     return pipe(flatten, uniqBy('id'))(milestones);
   }
 
-  async findOnlyPriorityFiveMilestones(progress?: ProgressStatus) {
+  async findOnlyPriorityFiveMilestones(
+    progress?: ProgressStatus,
+    projectId?: number,
+  ) {
     return this.prisma.milestone.findMany({
       where: {
         deletedAt: null,
         priority: 5,
         progress,
+        projectId,
       },
       include: {
         tags: { orderBy: { id: 'asc' } },
@@ -37,7 +41,10 @@ export class MilestoneService {
   }
 
   // 이틀 내로 남거나 지난 마일스톤들을 가져옴
-  async findNearDeadlineMilestones(progress?: ProgressStatus) {
+  async findNearDeadlineMilestones(
+    progress?: ProgressStatus,
+    projectId?: number,
+  ) {
     // 오늘의 시작과 끝 시간 계산
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
@@ -61,6 +68,7 @@ export class MilestoneService {
           { endAt: { lt: formatISO(todayStart) } },
         ],
         progress,
+        projectId,
       },
       include: {
         tags: { orderBy: { id: 'asc' } },
@@ -72,12 +80,16 @@ export class MilestoneService {
     });
   }
 
-  async findOnlyBookmarkedMilestones(progress?: ProgressStatus) {
+  async findOnlyBookmarkedMilestones(
+    progress?: ProgressStatus,
+    projectId?: number,
+  ) {
     return this.prisma.milestone.findMany({
       where: {
         deletedAt: null,
         isBookmarked: true,
         progress,
+        projectId,
       },
       include: {
         tags: { orderBy: { id: 'asc' } },
@@ -89,9 +101,12 @@ export class MilestoneService {
     });
   }
 
-  async findAllMilestonesByCreatedAt(progress?: ProgressStatus) {
+  async findAllMilestonesByCreatedAt(
+    progress?: ProgressStatus,
+    projectId?: number,
+  ) {
     return this.prisma.milestone.findMany({
-      where: { deletedAt: null, progress },
+      where: { deletedAt: null, progress, projectId },
       include: {
         tags: { orderBy: { id: 'asc' } },
         links: true,
@@ -102,9 +117,9 @@ export class MilestoneService {
     });
   }
 
-  async createMilestone() {
+  async createMilestone(projectId?: number) {
     return this.prisma.milestone.create({
-      data: {} as Milestone,
+      data: { projectId } as Milestone,
     });
   }
 

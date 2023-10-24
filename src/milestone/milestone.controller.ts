@@ -10,6 +10,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { ProgressStatus } from '@prisma/client';
+import { OptionalIntPipe } from '../../utils/decorators/optional-int.pipe';
 import { UpdateMilestoneReqDto } from './dto/update-milestone.req.dto';
 import { MilestoneService } from './milestone.service';
 
@@ -18,13 +19,16 @@ export class MilestoneController {
   constructor(private readonly milestoneService: MilestoneService) {}
 
   @Get()
-  getAllMilestones(@Query('progress') progress: ProgressStatus) {
-    return this.milestoneService.findAllMilestones(progress);
+  getAllMilestones(
+    @Query('progress') progress: ProgressStatus,
+    @Query('projectId', new OptionalIntPipe()) projectId?: number,
+  ) {
+    return this.milestoneService.findAllMilestones(progress, projectId);
   }
 
   @Post()
-  createMilestone() {
-    return this.milestoneService.createMilestone();
+  createMilestone(@Body() { projectId }: { projectId?: number }) {
+    return this.milestoneService.createMilestone(projectId);
   }
 
   @Patch(':id')
