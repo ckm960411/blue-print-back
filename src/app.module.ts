@@ -7,9 +7,10 @@ import { MemoModule } from './memo/memo.module';
 import { LinkModule } from './link/link.module';
 import { TagModule } from './tag/tag.module';
 import { MilestoneModule } from './milestone/milestone.module';
+import { ProjectModule } from './project/project.module';
 
 @Module({
-  imports: [PrismaModule, TaskModule, MemoModule, LinkModule, TagModule, MilestoneModule],
+  imports: [PrismaModule, TaskModule, MemoModule, LinkModule, TagModule, MilestoneModule, ProjectModule],
   controllers: [AppController],
   providers: [AppService],
 })
