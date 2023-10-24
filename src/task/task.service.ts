@@ -167,6 +167,7 @@ export class TaskService {
           { endAt: { gte: firstDayOfMonth, lte: lastDayOfMonth } },
         ],
       },
+      orderBy: [{ startAt: 'asc' }, { id: 'asc' }],
     });
 
     return data;
