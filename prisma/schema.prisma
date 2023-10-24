@@ -105,9 +105,11 @@ model Milestone {
 }
 
 model Project {
-  id         Int         @id @unique @default(autoincrement())
-  milestones Milestone[]
-  tasks      Task[]
-  memos      Memo[]
-  links      Link[]
+  id          Int         @id @unique @default(autoincrement())
+  title       String?     @default("프로젝트")
+  description String?     @default("")
+  milestones  Milestone[]
+  tasks       Task[]
+  memos       Memo[]
+  links       Link[]
 }
