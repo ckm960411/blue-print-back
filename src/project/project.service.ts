@@ -11,4 +11,10 @@ export class ProjectService {
       data: {} as CreateProjectReqDto,
     });
   }
+
+  async findAllProjects() {
+    return this.prisma.project.findMany({
+      orderBy: { id: 'asc' },
+    });
+  }
 }
