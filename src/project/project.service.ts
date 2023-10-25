@@ -18,6 +18,16 @@ export class ProjectService {
     });
   }
 
+  async updateProject(
+    id: number,
+    updateProjectReqDto: Partial<CreateProjectReqDto>,
+  ) {
+    return this.prisma.project.update({
+      where: { id },
+      data: updateProjectReqDto,
+    });
+  }
+
   async deleteProject(id: number) {
     return this.prisma.project.delete({ where: { id } });
   }
