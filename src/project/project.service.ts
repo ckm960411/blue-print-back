@@ -17,4 +17,8 @@ export class ProjectService {
       orderBy: { id: 'asc' },
     });
   }
+
+  async deleteProject(id: number) {
+    return this.prisma.project.delete({ where: { id } });
+  }
 }
