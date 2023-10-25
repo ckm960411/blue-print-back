@@ -54,6 +54,7 @@ model Task {
   title        String
   description  String?
   content      String?
+  color        String?        @default("gray")
   links        Link[]
   tags         Tag[]
   progress     ProgressStatus @default(ToDo)
@@ -74,7 +75,7 @@ model Memo {
   content      String
   isChecked    Boolean    @default(false)
   isBookmarked Boolean    @default(false)
-  color        String?
+  color        String?    @default("gray")
   link         Link[]
   Milestone    Milestone? @relation(fields: [milestoneId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   milestoneId  Int?
@@ -96,6 +97,7 @@ model Milestone {
   progress       ProgressStatus @default(ToDo)
   isClosed       Boolean        @default(false)
   isBookmarked   Boolean        @default(false)
+  color          String?        @default("gray")
   tags           Tag[]
   links          Link[]
   tasks          Task[]
