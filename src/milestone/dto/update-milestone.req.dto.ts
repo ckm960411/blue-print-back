@@ -51,6 +51,11 @@ export class UpdateMilestoneReqDto {
   @ApiProperty({ required: false, type: 'boolean' })
   isBookmarked?: boolean;
 
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ required: false, type: 'string' })
+  color?: string;
+
   @IsNumber()
   @IsOptional()
   @ApiProperty({ required: false })
