@@ -24,6 +24,11 @@ export class CreateTaskReqDto {
   @ApiProperty({ required: false, type: 'string' })
   content?: string;
 
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ required: false, type: 'string' })
+  color?: string;
+
   @IsNumber()
   @IsOptional()
   @ApiProperty({ required: false, type: 'number' })
