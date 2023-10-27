@@ -15,7 +15,7 @@ export class UserController {
     return this.userService.createUser(createUserReqDto);
   }
 
-  @Get()
+  @Get('me')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   async getUser(@User() user: UserEntity) {
