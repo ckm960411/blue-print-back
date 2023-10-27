@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
@@ -11,7 +12,17 @@ import { ProjectModule } from './project/project.module';
 import { AuthModule } from './auth/auth.module';
 
 @Module({
-  imports: [PrismaModule, TaskModule, MemoModule, LinkModule, TagModule, MilestoneModule, ProjectModule, AuthModule],
+  imports: [
+    ConfigModule.forRoot(),
+    PrismaModule,
+    TaskModule,
+    MemoModule,
+    LinkModule,
+    TagModule,
+    MilestoneModule,
+    ProjectModule,
+    AuthModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
