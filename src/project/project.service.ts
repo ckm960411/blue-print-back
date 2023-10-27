@@ -6,14 +6,15 @@ import { CreateProjectReqDto } from './dto/create-project.req.dto';
 export class ProjectService {
   constructor(private prisma: PrismaService) {}
 
-  async createProject() {
+  async createProject(userId: number) {
     return this.prisma.project.create({
-      data: {} as CreateProjectReqDto,
+      data: { userId } as CreateProjectReqDto,
     });
   }
 
-  async findAllProjects() {
+  async findAllProjects(userId: number) {
     return this.prisma.project.findMany({
+      where: { userId },
       orderBy: { id: 'asc' },
     });
   }
@@ -28,7 +29,7 @@ export class ProjectService {
     });
   }
 
-  async deleteProject(id: number) {
-    return this.prisma.project.delete({ where: { id } });
+  async deleteProject(id: number, userId: number) {
+    return this.prisma.project.delete({ where: { id, userId } });
   }
 }
