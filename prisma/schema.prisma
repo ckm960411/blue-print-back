@@ -19,6 +19,11 @@ enum ProgressStatus {
   Completed
 }
 
+enum Role {
+  MASTER
+  GUEST
+}
+
 // models
 model Tag {
   id          Int        @id @unique @default(autoincrement())
@@ -114,4 +119,14 @@ model Project {
   tasks       Task[]
   memos       Memo[]
   links       Link[]
+  User        User?       @relation(fields: [userId], references: [id])
+  userId      Int?
+}
+
+model User {
+  id       Int       @id @unique @default(autoincrement())
+  email    String
+  password String
+  role     Role
+  project  Project[]
 }
