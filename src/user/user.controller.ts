@@ -1,13 +1,6 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  ParseIntPipe,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { User } from '../../utils/decorators/user.decorator';
 import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
 import { CreateUserReqDto } from './dto/create-user.req.dto';
 import { UserEntity } from './entity/user.entity';
@@ -22,10 +15,11 @@ export class UserController {
     return this.userService.createUser(createUserReqDto);
   }
 
-  @Get(':id')
+  @Get()
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  async getUser(@Param('id', new ParseIntPipe()) id: number) {
-    return new UserEntity(await this.userService.findUser(id));
+  async getUser(@User() user: UserEntity) {
+    delete user.password;
+    return user;
   }
 }
