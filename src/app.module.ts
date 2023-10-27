@@ -10,6 +10,7 @@ import { TagModule } from './tag/tag.module';
 import { MilestoneModule } from './milestone/milestone.module';
 import { ProjectModule } from './project/project.module';
 import { AuthModule } from './auth/auth.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { AuthModule } from './auth/auth.module';
     MilestoneModule,
     ProjectModule,
     AuthModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],
