@@ -125,7 +125,7 @@ model Project {
 
 model User {
   id       Int       @id @unique @default(autoincrement())
-  email    String
+  email    String    @unique
   password String
   role     Role
   project  Project[]
