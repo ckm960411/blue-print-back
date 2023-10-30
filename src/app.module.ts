@@ -11,6 +11,7 @@ import { MilestoneModule } from './milestone/milestone.module';
 import { ProjectModule } from './project/project.module';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
+import { NotionModule } from './notion/notion.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { UserModule } from './user/user.module';
     ProjectModule,
     AuthModule,
     UserModule,
+    NotionModule,
   ],
   controllers: [AppController],
   providers: [AppService],
