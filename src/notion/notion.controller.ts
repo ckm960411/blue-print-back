@@ -23,4 +23,9 @@ export class NotionController {
   async getStudyBlocks() {
     return this.notionService.getStudyBlocks();
   }
+
+  @Get('meta')
+  async getMetatags(@Query('url') url: string) {
+    return this.notionService.getMetatags(url);
+  }
 }
