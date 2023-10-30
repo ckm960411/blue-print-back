@@ -18,4 +18,9 @@ export class NotionController {
   ) {
     return this.notionService.getBlockChildrenById(block_id, page_size);
   }
+
+  @Get('study')
+  async getStudyBlocks() {
+    return this.notionService.getStudyBlocks();
+  }
 }

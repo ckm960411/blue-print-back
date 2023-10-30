@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { notionApi } from './notion-client';
+import { studyBlocks } from './study/blocks';
 
 @Injectable()
 export class NotionService {
@@ -12,5 +13,9 @@ export class NotionService {
       block_id,
       page_size,
     });
+  }
+
+  async getStudyBlocks() {
+    return studyBlocks;
   }
 }
