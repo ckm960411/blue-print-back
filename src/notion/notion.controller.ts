@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { OptionalIntPipe } from '../../utils/decorators/optional-int.pipe';
 import { NotionService } from './notion.service';
 
@@ -9,6 +9,11 @@ export class NotionController {
   @Get('pages/:id')
   async getPageById(@Param('id') page_id: string) {
     return this.notionService.getPageById(page_id);
+  }
+
+  @Post('pages')
+  async getPages(@Body() { ids }: { ids: string[] }) {
+    return this.notionService.getPages(ids);
   }
 
   @Get('blocks/:id/children')
