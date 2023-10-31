@@ -180,6 +180,12 @@ export class TaskService {
         OR: [
           { startAt: { gte: firstDayOfMonth, lte: lastDayOfMonth } },
           { endAt: { gte: firstDayOfMonth, lte: lastDayOfMonth } },
+          {
+            AND: [
+              { startAt: { lte: lastDayOfMonth } },
+              { endAt: { gte: firstDayOfMonth } },
+            ],
+          },
         ],
       },
       orderBy: [{ startAt: 'asc' }, { id: 'asc' }],
