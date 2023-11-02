@@ -117,6 +117,19 @@ export class MilestoneService {
     });
   }
 
+  async findMilestoneById(id: number) {
+    const milestone = await this.prisma.milestone.findUnique({
+      where: { id },
+      include: {
+        tags: { orderBy: { id: 'asc' } },
+        links: true,
+        tasks: true,
+        memos: true,
+      },
+    });
+    return milestone;
+  }
+
   async createMilestone(projectId?: number) {
     return this.prisma.milestone.create({
       data: { projectId } as Milestone,
