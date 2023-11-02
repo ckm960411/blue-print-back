@@ -26,6 +26,11 @@ export class MilestoneController {
     return this.milestoneService.findAllMilestones(progress, projectId);
   }
 
+  @Get(':id')
+  getMilestoneById(@Param('id', new ParseIntPipe()) milestoneId: number) {
+    return this.milestoneService.findMilestoneById(milestoneId);
+  }
+
   @Post()
   createMilestone(@Body() { projectId }: { projectId?: number }) {
     return this.milestoneService.createMilestone(projectId);
