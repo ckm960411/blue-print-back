@@ -12,6 +12,7 @@ import { ProjectModule } from './project/project.module';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { NotionModule } from './notion/notion.module';
+import { CommentModule } from './comment/comment.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { NotionModule } from './notion/notion.module';
     AuthModule,
     UserModule,
     NotionModule,
+    CommentModule,
   ],
   controllers: [AppController],
   providers: [AppService],
