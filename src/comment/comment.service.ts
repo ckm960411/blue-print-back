@@ -6,6 +6,12 @@ import { CreateCommentReqDto } from './dto/create-comment.req.dto';
 export class CommentService {
   constructor(private prisma: PrismaService) {}
 
+  async findAllComments(milestoneId: number) {
+    return this.prisma.comment.findMany({
+      where: { milestoneId },
+    });
+  }
+
   async createComment(createCommentReqDto: CreateCommentReqDto) {
     return this.prisma.comment.create({ data: createCommentReqDto });
   }
