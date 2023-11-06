@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseBoolPipe,
   ParseIntPipe,
   Patch,
   Post,
@@ -20,8 +21,9 @@ export class CommentController {
   @Get()
   async getAllComments(
     @Query('milestoneId', new ParseIntPipe()) milestoneId: number,
+    @Query('isChecked', new ParseBoolPipe()) isChecked?: boolean,
   ) {
-    return this.commentService.findAllComments(milestoneId);
+    return this.commentService.findAllComments(milestoneId, isChecked);
   }
 
   @Post()

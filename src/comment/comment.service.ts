@@ -7,9 +7,9 @@ import { UpdateCommentReqDto } from './dto/update-comment.req.dto';
 export class CommentService {
   constructor(private prisma: PrismaService) {}
 
-  async findAllComments(milestoneId: number) {
+  async findAllComments(milestoneId: number, isChecked = false) {
     return this.prisma.comment.findMany({
-      where: { milestoneId },
+      where: { milestoneId, isChecked },
       orderBy: [{ isBookmarked: 'desc' }, { createdAt: 'asc' }],
     });
   }
