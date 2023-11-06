@@ -10,7 +10,7 @@ export class CommentService {
   async findAllComments(milestoneId: number) {
     return this.prisma.comment.findMany({
       where: { milestoneId },
-      orderBy: { createdAt: 'asc' },
+      orderBy: [{ isBookmarked: 'desc' }, { createdAt: 'asc' }],
     });
   }
 
