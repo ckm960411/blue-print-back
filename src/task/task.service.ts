@@ -36,7 +36,8 @@ export class TaskService {
 
     return this.prisma.$queryRaw`
         SELECT "Task".*,
-          "Milestone"."title" as "milestoneTitle"
+          "Milestone"."title" as "milestoneTitle",
+          "Milestone"."color" as "milestoneColor"
           FROM "Task"
         LEFT JOIN "Milestone" ON "Task"."milestoneId" = "Milestone"."id"
         WHERE "Task"."progress"::text = ${progress}
