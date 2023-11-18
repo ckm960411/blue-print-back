@@ -1,13 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ProgressStatus } from '@prisma/client';
-import {
-  addDays,
-  endOfMonth,
-  formatISO,
-  getMonth,
-  getYear,
-  startOfMonth,
-} from 'date-fns';
+import { endOfMonth, getMonth, getYear, startOfMonth } from 'date-fns';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTaskReqDto } from './dto/create-task.req.dto';
 import { UpdateTaskReqDto } from './dto/update-task.req.dto';
@@ -17,12 +10,31 @@ export class TaskService {
   constructor(private prisma: PrismaService) {}
 
   async findAllTasks(projectId: number) {
+    const todoTasks = await this.getTasks(projectId, ProgressStatus.ToDo);
+    const inProgressTasks = await this.getTasks(
+      projectId,
+      ProgressStatus.InProgress,
+    );
+    const reviewTasks = await this.getTasks(projectId, ProgressStatus.Review);
+    const completedTasks = await this.getTasks(
+      projectId,
+      ProgressStatus.Completed,
+    );
+
+    return {
+      [ProgressStatus.ToDo]: todoTasks,
+      [ProgressStatus.InProgress]: inProgressTasks,
+      [ProgressStatus.Review]: reviewTasks,
+      [ProgressStatus.Completed]: completedTasks,
+    };
+  }
+
+  async getTasks(projectId: number, progress: ProgressStatus) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const twoDaysLater = new Date(today.getTime() + 2 * 24 * 60 * 60 * 1000);
 
-    const getTasks = async (progress: ProgressStatus) => {
-      return this.prisma.$queryRaw`
+    return this.prisma.$queryRaw`
         SELECT "Task".*,
           "Milestone"."title" as "milestoneTitle"
           FROM "Task"
@@ -38,116 +50,6 @@ export class TaskService {
           END,
           "Task"."createdAt" DESC;
       `;
-    };
-
-    const todoTasks = await getTasks(ProgressStatus.ToDo);
-    const inProgressTasks = await getTasks(ProgressStatus.InProgress);
-    const reviewTasks = await getTasks(ProgressStatus.Review);
-    const completedTasks = await getTasks(ProgressStatus.Completed);
-
-    return {
-      [ProgressStatus.ToDo]: todoTasks,
-      [ProgressStatus.InProgress]: inProgressTasks,
-      [ProgressStatus.Review]: reviewTasks,
-      [ProgressStatus.Completed]: completedTasks,
-    };
-  }
-
-  async findOnlyPriorityFiveTasks(
-    progress?: ProgressStatus,
-    projectId?: number,
-    milestoneId?: number,
-  ) {
-    return this.prisma.task.findMany({
-      where: {
-        deletedAt: null,
-        priority: 5,
-        progress,
-        milestoneId,
-        projectId,
-      },
-      include: {
-        links: true,
-        tags: { orderBy: { id: 'asc' } },
-      },
-      orderBy: { createdAt: 'asc' },
-    });
-  }
-
-  // 이틀 내로 남거나 지난 태스크들을 가져옴
-  async findNearDeadlineTasks(
-    progress?: ProgressStatus,
-    projectId?: number,
-    milestoneId?: number,
-  ) {
-    // 오늘의 시작과 끝 시간 계산
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-    const todayEnd = new Date();
-    todayEnd.setHours(23, 59, 59, 999);
-
-    // 이틀 후의 끝 시간 계산
-    const twoDaysLaterEnd = addDays(todayEnd, 2);
-
-    return this.prisma.task.findMany({
-      where: {
-        deletedAt: null,
-        OR: [
-          {
-            endAt: {
-              lte: formatISO(twoDaysLaterEnd),
-              gte: formatISO(todayStart),
-            },
-          },
-          // 이미 지난 항목
-          { endAt: { lt: formatISO(todayStart) } },
-        ],
-        progress,
-        milestoneId,
-        projectId,
-      },
-      include: {
-        links: true,
-        tags: { orderBy: { id: 'asc' } },
-      },
-      orderBy: { createdAt: 'asc' },
-    });
-  }
-
-  async findOnlyBookmarkedTasks(
-    progress?: ProgressStatus,
-    projectId?: number,
-    milestoneId?: number,
-  ) {
-    return this.prisma.task.findMany({
-      where: {
-        deletedAt: null,
-        isBookmarked: true,
-        progress,
-        milestoneId,
-        projectId,
-      },
-      include: {
-        links: true,
-        tags: { orderBy: { id: 'asc' } },
-      },
-      orderBy: { createdAt: 'asc' },
-    });
-  }
-
-  async findAllTasksOrderByCreatedAt(
-    progress?: ProgressStatus,
-    projectId?: number,
-    milestoneId?: number,
-  ) {
-    return this.prisma.task.findMany({
-      where: { deletedAt: null, progress, milestoneId, projectId },
-      include: {
-        links: true,
-        tags: { orderBy: { id: 'asc' } },
-      },
-      orderBy: { createdAt: 'asc' },
-    });
   }
 
   async findOneTask(id: number, projectId?: number) {
