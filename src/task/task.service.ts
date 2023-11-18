@@ -8,7 +8,6 @@ import {
   getYear,
   startOfMonth,
 } from 'date-fns';
-import { pipe, uniqBy, flatten } from 'lodash/fp';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTaskReqDto } from './dto/create-task.req.dto';
 import { UpdateTaskReqDto } from './dto/update-task.req.dto';
@@ -17,18 +16,41 @@ import { UpdateTaskReqDto } from './dto/update-task.req.dto';
 export class TaskService {
   constructor(private prisma: PrismaService) {}
 
-  async findAllTasks(
-    progress?: ProgressStatus,
-    projectId?: number,
-    milestoneId?: number,
-  ) {
-    const tasks = await Promise.all([
-      this.findOnlyPriorityFiveTasks(progress, projectId, milestoneId),
-      this.findNearDeadlineTasks(progress, projectId, milestoneId),
-      this.findOnlyBookmarkedTasks(progress, projectId, milestoneId),
-      this.findAllTasksOrderByCreatedAt(progress, projectId, milestoneId),
-    ]);
-    return pipe(flatten, uniqBy('id'))(tasks);
+  async findAllTasks(projectId: number) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const twoDaysLater = new Date(today.getTime() + 2 * 24 * 60 * 60 * 1000);
+
+    const getTasks = async (progress: ProgressStatus) => {
+      return this.prisma.$queryRaw`
+        SELECT "Task".*,
+          "Milestone"."title" as "milestoneTitle"
+          FROM "Task"
+        LEFT JOIN "Milestone" ON "Task"."milestoneId" = "Milestone"."id"
+        WHERE "Task"."progress"::text = ${progress}
+          AND "Task"."projectId" = ${projectId}
+        ORDER BY
+          CASE
+            WHEN "Task"."priority" = 5 THEN 1
+            WHEN "Task"."endAt" < ${twoDaysLater.toISOString()}::timestamp THEN 2
+            WHEN "Task"."isBookmarked" = TRUE THEN 3
+            ELSE 4
+          END,
+          "Task"."createdAt" DESC;
+      `;
+    };
+
+    const todoTasks = await getTasks(ProgressStatus.ToDo);
+    const inProgressTasks = await getTasks(ProgressStatus.InProgress);
+    const reviewTasks = await getTasks(ProgressStatus.Review);
+    const completedTasks = await getTasks(ProgressStatus.Completed);
+
+    return {
+      [ProgressStatus.ToDo]: todoTasks,
+      [ProgressStatus.InProgress]: inProgressTasks,
+      [ProgressStatus.Review]: reviewTasks,
+      [ProgressStatus.Completed]: completedTasks,
+    };
   }
 
   async findOnlyPriorityFiveTasks(
