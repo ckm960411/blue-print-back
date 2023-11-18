@@ -37,11 +37,14 @@ export class TaskService {
     return this.prisma.$queryRaw`
         SELECT "Task".*,
           "Milestone"."title" as "milestoneTitle",
-          "Milestone"."color" as "milestoneColor"
+          "Milestone"."color" as "milestoneColor",
+         COALESCE(array_agg("Tag"."name") FILTER (WHERE "Tag"."name" IS NOT NULL), ARRAY[]::VARCHAR[]) as tags
           FROM "Task"
         LEFT JOIN "Milestone" ON "Task"."milestoneId" = "Milestone"."id"
+        LEFT JOIN "Tag" ON "Task"."id" = "Tag"."taskId"
         WHERE "Task"."progress"::text = ${progress}
           AND "Task"."projectId" = ${projectId}
+        GROUP BY "Task"."id", "Milestone"."title", "Milestone"."color"
         ORDER BY
           CASE
             WHEN "Task"."priority" = 5 THEN 1
