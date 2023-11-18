@@ -20,10 +20,10 @@ export class MilestoneController {
 
   @Get()
   getAllMilestones(
-    @Query('progress') progress: ProgressStatus,
+    @Query('progresses') progresses: ProgressStatus[],
     @Query('projectId', new OptionalIntPipe()) projectId?: number,
   ) {
-    return this.milestoneService.findAllMilestones(progress, projectId);
+    return this.milestoneService.findAllMilestones(progresses, projectId);
   }
 
   @Get(':id')
