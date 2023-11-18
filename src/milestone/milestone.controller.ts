@@ -18,14 +18,6 @@ import { MilestoneService } from './milestone.service';
 export class MilestoneController {
   constructor(private readonly milestoneService: MilestoneService) {}
 
-  // @Get()
-  // getAllMilestones(
-  //   @Query('progresses') progresses: ProgressStatus[],
-  //   @Query('projectId', new OptionalIntPipe()) projectId?: number,
-  // ) {
-  //   return this.milestoneService.findAllMilestones(progresses, projectId);
-  // }
-
   @Get()
   getAllMilestoneList(
     @Query('progresses') progresses: ProgressStatus[],
