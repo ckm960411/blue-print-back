@@ -10,26 +10,33 @@ export class TaskService {
   constructor(private prisma: PrismaService) {}
 
   async findAllTasks(projectId: number) {
-    const todoTasks = await this.getTasks(projectId, ProgressStatus.ToDo);
-    const inProgressTasks = await this.getTasks(
+    const { ToDo, InProgress, Review, Completed } = ProgressStatus;
+    const todoTasks = await this.getTasks({ projectId, progress: ToDo });
+    const inProgressTasks = await this.getTasks({
       projectId,
-      ProgressStatus.InProgress,
-    );
-    const reviewTasks = await this.getTasks(projectId, ProgressStatus.Review);
-    const completedTasks = await this.getTasks(
+      progress: InProgress,
+    });
+    const reviewTasks = await this.getTasks({ projectId, progress: Review });
+    const completedTasks = await this.getTasks({
       projectId,
-      ProgressStatus.Completed,
-    );
+      progress: Completed,
+    });
 
     return {
-      [ProgressStatus.ToDo]: todoTasks,
-      [ProgressStatus.InProgress]: inProgressTasks,
-      [ProgressStatus.Review]: reviewTasks,
-      [ProgressStatus.Completed]: completedTasks,
+      [ToDo]: todoTasks,
+      [InProgress]: inProgressTasks,
+      [Review]: reviewTasks,
+      [Completed]: completedTasks,
     };
   }
 
-  async getTasks(projectId: number, progress: ProgressStatus) {
+  async getTasks({
+    projectId,
+    progress,
+  }: {
+    projectId: number;
+    progress: ProgressStatus;
+  }) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const twoDaysLater = new Date(today.getTime() + 2 * 24 * 60 * 60 * 1000);
