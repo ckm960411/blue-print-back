@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { ProgressStatus } from '@prisma/client';
+import { Prisma, ProgressStatus } from '@prisma/client';
 import { endOfMonth, getMonth, getYear, startOfMonth } from 'date-fns';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTaskReqDto } from './dto/create-task.req.dto';
@@ -9,17 +9,27 @@ import { UpdateTaskReqDto } from './dto/update-task.req.dto';
 export class TaskService {
   constructor(private prisma: PrismaService) {}
 
-  async findAllTasks(projectId: number) {
+  async findAllTasks(projectId: number, milestoneId?: number) {
     const { ToDo, InProgress, Review, Completed } = ProgressStatus;
-    const todoTasks = await this.getTasks({ projectId, progress: ToDo });
+    const todoTasks = await this.getTasks({
+      projectId,
+      progress: ToDo,
+      milestoneId,
+    });
     const inProgressTasks = await this.getTasks({
       projectId,
       progress: InProgress,
+      milestoneId,
     });
-    const reviewTasks = await this.getTasks({ projectId, progress: Review });
+    const reviewTasks = await this.getTasks({
+      projectId,
+      progress: Review,
+      milestoneId,
+    });
     const completedTasks = await this.getTasks({
       projectId,
       progress: Completed,
+      milestoneId,
     });
 
     return {
@@ -33,9 +43,11 @@ export class TaskService {
   async getTasks({
     projectId,
     progress,
+    milestoneId,
   }: {
     projectId: number;
     progress: ProgressStatus;
+    milestoneId?: number;
   }) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -51,6 +63,11 @@ export class TaskService {
         LEFT JOIN "Tag" ON "Task"."id" = "Tag"."taskId"
         WHERE "Task"."progress"::text = ${progress}
           AND "Task"."projectId" = ${projectId}
+          ${
+            milestoneId
+              ? Prisma.sql`AND "Task"."milestoneId" = ${milestoneId}`
+              : Prisma.empty
+          }
         GROUP BY "Task"."id", "Milestone"."title", "Milestone"."color"
         ORDER BY
           CASE

@@ -19,8 +19,11 @@ export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
   @Get()
-  getAllTasks(@Query('projectId', new ParseIntPipe()) projectId: number) {
-    return this.taskService.findAllTasks(projectId);
+  getAllTasks(
+    @Query('projectId', new ParseIntPipe()) projectId: number,
+    @Query('milestoneId', new OptionalIntPipe()) milestoneId?: number,
+  ) {
+    return this.taskService.findAllTasks(projectId, milestoneId);
   }
 
   @Get('urgent')
