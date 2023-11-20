@@ -31,6 +31,11 @@ export class TaskController {
     return this.taskService.findAllUrgentTasks(projectId, milestoneId);
   }
 
+  @Get(':id')
+  async getOneTaskById(@Param('id', new ParseIntPipe()) id: number) {
+    return this.taskService.findOneTask(id);
+  }
+
   @Get('month')
   findThisMonthTasks(
     @Query('projectId', new OptionalIntPipe()) projectId?: number,

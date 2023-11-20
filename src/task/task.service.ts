@@ -38,7 +38,7 @@ export class TaskService {
         SELECT "Task".*,
           "Milestone"."title" as "milestoneTitle",
           "Milestone"."color" as "milestoneColor",
-         COALESCE(array_agg("Tag"."name") FILTER (WHERE "Tag"."name" IS NOT NULL), ARRAY[]::VARCHAR[]) as tags
+          COALESCE(array_agg("Tag"."name") FILTER (WHERE "Tag"."name" IS NOT NULL), ARRAY[]::VARCHAR[]) as tags
           FROM "Task"
         LEFT JOIN "Milestone" ON "Task"."milestoneId" = "Milestone"."id"
         LEFT JOIN "Tag" ON "Task"."id" = "Tag"."taskId"
