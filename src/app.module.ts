@@ -13,6 +13,7 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { NotionModule } from './notion/notion.module';
 import { CommentModule } from './comment/comment.module';
+import { WorkModule } from './work/work.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { CommentModule } from './comment/comment.module';
     UserModule,
     NotionModule,
     CommentModule,
+    WorkModule,
   ],
   controllers: [AppController],
   providers: [AppService],
