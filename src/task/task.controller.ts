@@ -9,7 +9,6 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { ProgressStatus } from '@prisma/client';
 import { OptionalIntPipe } from '../../utils/decorators/optional-int.pipe';
 import { CreateTaskReqDto } from './dto/create-task.req.dto';
 import { UpdateTaskReqDto } from './dto/update-task.req.dto';
@@ -21,11 +20,10 @@ export class TaskController {
 
   @Get()
   getAllTasks(
-    @Query('progress') progress: ProgressStatus,
-    @Query('projectId', new OptionalIntPipe()) projectId?: number,
+    @Query('projectId', new ParseIntPipe()) projectId: number,
     @Query('milestoneId', new OptionalIntPipe()) milestoneId?: number,
   ) {
-    return this.taskService.findAllTasks(progress, projectId, milestoneId);
+    return this.taskService.findAllTasks(projectId, milestoneId);
   }
 
   @Get('urgent')
@@ -34,6 +32,11 @@ export class TaskController {
     @Query('milestoneId', new OptionalIntPipe()) milestoneId?: number,
   ) {
     return this.taskService.findAllUrgentTasks(projectId, milestoneId);
+  }
+
+  @Get(':id')
+  async getOneTaskById(@Param('id', new ParseIntPipe()) id: number) {
+    return this.taskService.findOneTask(id);
   }
 
   @Get('month')

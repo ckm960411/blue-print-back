@@ -20,7 +20,7 @@ export class MemoController {
   constructor(private readonly memoService: MemoService) {}
 
   @Get()
-  getAllMemos(
+  async getAllMemos(
     @Query('checked', new ParseBoolPipe()) checked: boolean,
     @Query('projectId', new OptionalIntPipe()) projectId?: number,
     @Query('milestoneId', new OptionalIntPipe()) milestoneId?: number,
@@ -28,13 +28,18 @@ export class MemoController {
     return this.memoService.findAllMemos(checked, projectId, milestoneId);
   }
 
+  @Get(':id')
+  async getOneMemoById(@Param('id', new ParseIntPipe()) id: number) {
+    return this.memoService.findOneMemo(id);
+  }
+
   @Post()
-  createMemo(@Body() createMemoReqDto: CreateMemoReqDto) {
+  async createMemo(@Body() createMemoReqDto: CreateMemoReqDto) {
     return this.memoService.createMemo(createMemoReqDto);
   }
 
   @Patch(':id')
-  updateMemo(
+  async updateMemo(
     @Param('id', new ParseIntPipe()) id: number,
     @Body() updateMemoReqDto: UpdateMemoReqDto,
   ) {
@@ -42,7 +47,7 @@ export class MemoController {
   }
 
   @Delete(':id')
-  deleteMemo(@Param('id', ParseIntPipe) id: number) {
+  async deleteMemo(@Param('id', ParseIntPipe) id: number) {
     return this.memoService.deleteMemo(id);
   }
 }
