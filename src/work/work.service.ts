@@ -30,6 +30,7 @@ export class WorkService {
       SELECT
         "Milestone"."id" as "milestoneId",
         NULL as "taskId",
+        "Milestone"."title",
         "Milestone"."startAt",
         "Milestone"."endAt",
         "Milestone"."color",
@@ -49,6 +50,7 @@ export class WorkService {
       SELECT
         NULL as "milestoneId",
         "Task"."id" as "taskId",
+        "Task"."title",
         "Task"."startAt",
         "Task"."endAt",
         "Task"."color",
