@@ -19,9 +19,14 @@ export class NotionController {
   @Get('blocks/:id/children')
   async getBlockChildrenById(
     @Param('id') block_id: string,
+    @Query('start_cursor') start_cursor?: string,
     @Query('page_size', new OptionalIntPipe()) page_size?: number,
   ) {
-    return this.notionService.getBlockChildrenById(block_id, page_size);
+    return this.notionService.getBlockChildrenById(
+      block_id,
+      start_cursor,
+      page_size,
+    );
   }
 
   @Get('study')
