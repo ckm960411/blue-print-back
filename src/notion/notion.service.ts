@@ -14,9 +14,14 @@ export class NotionService {
     return await Promise.all(ids.map((id) => this.getPageById(id)));
   }
 
-  async getBlockChildrenById(block_id: string, page_size = 100) {
+  async getBlockChildrenById(
+    block_id: string,
+    start_cursor?: string,
+    page_size = 10,
+  ) {
     return await notionApi.blocks.children.list({
       block_id,
+      start_cursor,
       page_size,
     });
   }
