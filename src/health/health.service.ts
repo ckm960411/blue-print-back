@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { endOfMonth, getMonth, getYear, startOfMonth } from 'date-fns';
 import { PrismaService } from '../prisma/prisma.service';
+import { omit } from 'lodash';
 
 @Injectable()
 export class HealthService {
@@ -13,7 +14,7 @@ export class HealthService {
     const yearToFind = year ?? getYear(new Date());
     const monthToFind = month ? month - 1 : getMonth(new Date());
 
-    return this.prisma.userExercise.findMany({
+    const userExercises = await this.prisma.userExercise.findMany({
       where: {
         userId,
         exercise: {
@@ -24,8 +25,23 @@ export class HealthService {
         },
       },
       include: {
-        exercise: true,
+        exercise: {
+          include: {
+            exerciseType: true,
+          },
+        },
       },
+    });
+
+    // userExercises 배열에서 exercise 객체만을 추출하여 새 배열을 생성
+    // 이때, exercise 객체에 exerciseType의 name을 포함
+    return userExercises.map((userExercise) => {
+      const exerciseWithType = {
+        ...userExercise.exercise,
+        name: userExercise.exercise.exerciseType.name,
+        unit: userExercise.exercise.exerciseType.unit,
+      };
+      return omit(exerciseWithType, 'exerciseType');
     });
   }
 }
