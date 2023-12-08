@@ -137,9 +137,35 @@ model Project {
 }
 
 model User {
-  id       Int       @id @unique @default(autoincrement())
-  email    String    @unique
-  password String
-  role     Role
-  project  Project[]
+  id           Int            @id @unique @default(autoincrement())
+  email        String         @unique
+  password     String
+  role         Role
+  project      Project[]
+  UserExercise UserExercise[]
+}
+
+model UserExercise {
+  id         Int      @id @unique @default(autoincrement())
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id])
+  exerciseId Int
+  exercise   Exercise @relation(fields: [exerciseId], references: [id])
+}
+
+model Exercise {
+  id             Int            @id @unique @default(autoincrement())
+  description    String?
+  exerciseType   ExerciseType   @relation(fields: [exerciseTypeId], references: [id])
+  count          Int
+  date           DateTime
+  exerciseTypeId Int
+  UserExercise   UserExercise[]
+}
+
+model ExerciseType {
+  id       Int        @id @unique @default(autoincrement())
+  name     String
+  unit     String
+  Exercise Exercise[]
 }
