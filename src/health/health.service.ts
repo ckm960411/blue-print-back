@@ -3,19 +3,15 @@ import { omit } from 'lodash';
 import { flow } from 'lodash/fp';
 import {
   endOfDay,
+  endOfWeek,
   getDay,
   getMonth,
   getYear,
   isDate,
   startOfDay,
-} from 'date-fns';
-import {
-  format,
-  startOfMonth,
-  endOfMonth,
   startOfWeek,
-  endOfWeek,
-} from 'date-fns/fp';
+} from 'date-fns';
+import { format, startOfMonth, endOfMonth } from 'date-fns/fp';
 
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -83,8 +79,17 @@ export class HealthService {
       throw new BadRequestException('날짜 정보를 올바르게 입력해주세요');
     }
 
-    const start = flow(startOfWeek, format('yyyy-MM-dd'))(dateToFind);
-    const end = flow(endOfWeek, format('yyyy-MM-dd'))(dateToFind);
+    const start = flow(
+      (date: Date) => startOfWeek(date, { weekStartsOn: 1 }),
+      format('yyyy-MM-dd'),
+    )(dateToFind);
+    const end = flow(
+      (date: Date) => endOfWeek(date, { weekStartsOn: 1 }),
+      format('yyyy-MM-dd'),
+    )(dateToFind);
+
+    console.log('start', start);
+    console.log('end', end);
 
     const exercises = await this.getExercises(userId, start, end);
 
