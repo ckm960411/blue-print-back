@@ -157,7 +157,7 @@ model Exercise {
   id             Int            @id @unique @default(autoincrement())
   description    String?
   exerciseType   ExerciseType   @relation(fields: [exerciseTypeId], references: [id])
-  count          Int
+  count          Int?
   date           DateTime
   exerciseTypeId Int
   UserExercise   UserExercise[]
