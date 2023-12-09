@@ -88,9 +88,6 @@ export class HealthService {
       format('yyyy-MM-dd'),
     )(dateToFind);
 
-    console.log('start', start);
-    console.log('end', end);
-
     const exercises = await this.getExercises(userId, start, end);
 
     const weeklyChecked = {
@@ -112,5 +109,9 @@ export class HealthService {
     });
 
     return weeklyChecked;
+  }
+
+  async getAllExerciseType() {
+    return this.prisma.exerciseType.findMany();
   }
 }

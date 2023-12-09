@@ -36,4 +36,9 @@ export class HealthController {
   ) {
     return this.healthService.getWeeklyExerciseChecked(user.id, today);
   }
+
+  @Get('exercises/type')
+  async getAllExerciseType() {
+    return this.healthService.getAllExerciseType();
+  }
 }
