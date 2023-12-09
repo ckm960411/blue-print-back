@@ -19,6 +19,15 @@ export class HealthController {
     return this.healthService.getMonthExercises(user.id, { year, month });
   }
 
+  @Get('exercises/date')
+  @UseGuards(JwtAuthGuard)
+  async getOneDateExercises(
+    @User() user: UserEntity,
+    @Query('date') date: string, // 'yyyy-MM-dd'
+  ) {
+    return this.healthService.getExercises(user.id, date, date);
+  }
+
   @Get('week/checked')
   @UseGuards(JwtAuthGuard)
   async getWeeklyExerciseChecked(

@@ -100,7 +100,7 @@ export class HealthService {
 
     exercises.forEach((exercise) => {
       const exerciseDay = getDay(exercise.date);
-      Object.entries(weeklyChecked).forEach(([index, checked]) => {
+      Object.keys(weeklyChecked).forEach((index) => {
         const dayIndex = Number(index);
         if (dayIndex === exerciseDay) weeklyChecked[dayIndex] = true;
       });
