@@ -14,6 +14,7 @@ import {
 import { format, startOfMonth, endOfMonth } from 'date-fns/fp';
 
 import { PrismaService } from '../prisma/prisma.service';
+import { CreateExerciseTypeReqDto } from './dto/create-exercise-type.req.dto';
 
 @Injectable()
 export class HealthService {
@@ -113,5 +114,13 @@ export class HealthService {
 
   async getAllExerciseType() {
     return this.prisma.exerciseType.findMany();
+  }
+
+  async createExerciseType(createExerciseTypeReqDto: CreateExerciseTypeReqDto) {
+    if (!createExerciseTypeReqDto.name || !createExerciseTypeReqDto.unit) {
+      throw new BadRequestException('name 또는 unit 을 입력해주세요.');
+    }
+
+    return this.prisma.exerciseType.create({ data: createExerciseTypeReqDto });
   }
 }

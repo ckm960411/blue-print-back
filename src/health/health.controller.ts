@@ -1,8 +1,9 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { OptionalIntPipe } from '../../utils/decorators/optional-int.pipe';
 import { User } from '../../utils/decorators/user.decorator';
 import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
 import { UserEntity } from '../user/entity/user.entity';
+import { CreateExerciseTypeReqDto } from './dto/create-exercise-type.req.dto';
 import { HealthService } from './health.service';
 
 @Controller('health')
@@ -40,5 +41,12 @@ export class HealthController {
   @Get('exercises/type')
   async getAllExerciseType() {
     return this.healthService.getAllExerciseType();
+  }
+
+  @Post('exercises/type')
+  async createExerciseType(
+    @Body() createExerciseTypeReqDto: CreateExerciseTypeReqDto,
+  ) {
+    return this.healthService.createExerciseType(createExerciseTypeReqDto);
   }
 }
