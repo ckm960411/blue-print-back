@@ -15,6 +15,7 @@ import { format, startOfMonth, endOfMonth } from 'date-fns/fp';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateExerciseTypeReqDto } from './dto/create-exercise-type.req.dto';
+import { CreateExerciseReqDto } from './dto/create-exercise.req.dto';
 
 @Injectable()
 export class HealthService {
@@ -109,6 +110,18 @@ export class HealthService {
     });
 
     return weeklyChecked;
+  }
+
+  async createExercise(
+    userId: number,
+    createExerciseReqDto: CreateExerciseReqDto,
+  ) {
+    return this.prisma.exercise.create({
+      data: {
+        userId,
+        ...createExerciseReqDto,
+      },
+    });
   }
 
   async getAllExerciseType() {

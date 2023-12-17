@@ -4,6 +4,7 @@ import { User } from '../../utils/decorators/user.decorator';
 import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
 import { UserEntity } from '../user/entity/user.entity';
 import { CreateExerciseTypeReqDto } from './dto/create-exercise-type.req.dto';
+import { CreateExerciseReqDto } from './dto/create-exercise.req.dto';
 import { HealthService } from './health.service';
 
 @Controller('health')
@@ -27,6 +28,15 @@ export class HealthController {
     @Query('date') date: string, // 'yyyy-MM-dd'
   ) {
     return this.healthService.getExercises(user.id, date, date);
+  }
+
+  @Post('exercises')
+  @UseGuards(JwtAuthGuard)
+  async createExercise(
+    @User() user: UserEntity,
+    @Body() createExerciseReqDto: CreateExerciseReqDto,
+  ) {
+    return this.healthService.createExercise(user.id, createExerciseReqDto);
   }
 
   @Get('week/checked')
