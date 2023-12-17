@@ -5,6 +5,7 @@ import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
 import { UserEntity } from '../user/entity/user.entity';
 import { CreateExerciseTypeReqDto } from './dto/create-exercise-type.req.dto';
 import { CreateExerciseReqDto } from './dto/create-exercise.req.dto';
+import { CreateWeightReqDto } from './dto/create-weight.req.dto';
 import { HealthService } from './health.service';
 
 @Controller('health')
@@ -58,5 +59,14 @@ export class HealthController {
     @Body() createExerciseTypeReqDto: CreateExerciseTypeReqDto,
   ) {
     return this.healthService.createExerciseType(createExerciseTypeReqDto);
+  }
+
+  @Post(`weight`)
+  @UseGuards(JwtAuthGuard)
+  async createWeight(
+    @User() user: UserEntity,
+    @Body() createWeightReqDto: CreateWeightReqDto,
+  ) {
+    return this.healthService.createWeight(user.id, createWeightReqDto);
   }
 }
