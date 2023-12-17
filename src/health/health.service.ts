@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { omit } from 'lodash';
+import { map, omit } from 'lodash';
 import { flow } from 'lodash/fp';
 import {
   endOfDay,
@@ -34,24 +34,23 @@ export class HealthService {
     const start = startOfDay(new Date(from));
     const end = endOfDay(new Date(to));
 
-    const userExercises = await this.prisma.userExercise.findMany({
+    const exercises = await this.prisma.exercise.findMany({
       where: {
         userId,
-        exercise: { date: { gte: start, lte: end } },
+        date: {
+          gte: start,
+          lte: end,
+        },
       },
-      include: { exercise: { include: { exerciseType: true } } },
+      include: {
+        exerciseType: true,
+      },
     });
 
-    // userExercises 배열에서 exercise 객체만을 추출하여 새 배열을 생성
-    // 이때, exercise 객체에 exerciseType의 name을 포함
-    return userExercises.map((userExercise) => {
-      const exerciseWithType = {
-        ...userExercise.exercise,
-        name: userExercise.exercise.exerciseType.name,
-        unit: userExercise.exercise.exerciseType.unit,
-      };
-      return omit(exerciseWithType, 'exerciseType');
-    });
+    return map(exercises, (exercise) => ({
+      ...omit(exercise, 'exerciseType'), // exerciseType 은 제외
+      ...omit(exercise.exerciseType, 'id'), // exerciseType.id 는 제외하고 전개
+    }));
   }
 
   async getMonthExercises(
