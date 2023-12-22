@@ -61,6 +61,12 @@ export class HealthController {
     return this.healthService.createExerciseType(createExerciseTypeReqDto);
   }
 
+  @Get(`weight`)
+  @UseGuards(JwtAuthGuard)
+  async getWeights(@User() user: UserEntity) {
+    return this.healthService.getWeights(user.id);
+  }
+
   @Post(`weight`)
   @UseGuards(JwtAuthGuard)
   async createWeight(

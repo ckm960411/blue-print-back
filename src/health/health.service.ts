@@ -2,6 +2,9 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { map, omit } from 'lodash';
 import { flow } from 'lodash/fp';
 import {
+  addDays,
+  addMonths,
+  addWeeks,
   endOfDay,
   endOfWeek,
   getDay,
@@ -144,5 +147,60 @@ export class HealthService {
         ...createWeightReqDto,
       },
     });
+  }
+
+  async getWeights(userId: number) {
+    const now = new Date();
+    /**
+     * 오늘의 체중을 가져온다
+     */
+    const startOfToday = startOfDay(now);
+    const endOfToday = endOfDay(now);
+    const todayWeights = await this.prisma.weight.findMany({
+      where: {
+        userId,
+        date: {
+          gte: startOfToday,
+          lte: endOfToday,
+        },
+      },
+    });
+    const todayWeight = todayWeights[0]?.weight;
+
+    /**
+     * 일주일 전 체중을 가져온다
+     */
+    const weekAgo = addWeeks(now, -1);
+    const startOfWeekAgo = startOfDay(weekAgo);
+    const endOfWeekAgo = endOfDay(addDays(now, -1));
+
+    // 일주일 전 ~ 어제까지의 체중에서 첫번쨰 체중을 반환
+    const weekAgoWeights = await this.prisma.weight.findMany({
+      where: {
+        userId,
+        date: { gte: startOfWeekAgo, lte: endOfWeekAgo },
+      },
+    });
+    const weekAgoWeight = weekAgoWeights[0]?.weight;
+
+    /**
+     * 한달 전 체중을 가져온다
+     */
+    const monthAgo = addMonths(now, -1);
+    const startOfMonthAgo = startOfDay(monthAgo);
+    const endOfMonthAgo = endOfDay(addDays(weekAgo, -1));
+    const monthAgoWeights = await this.prisma.weight.findMany({
+      where: {
+        userId,
+        date: { gte: startOfMonthAgo, lte: endOfMonthAgo },
+      },
+    });
+    const monthAgoWeight = monthAgoWeights[0]?.weight;
+
+    return {
+      monthAgo: monthAgoWeight,
+      weekAgo: weekAgoWeight,
+      today: todayWeight,
+    };
   }
 }
