@@ -1,0 +1,224 @@
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { map, omit } from 'lodash';
+import { flow } from 'lodash/fp';
+import {
+  addDays,
+  addMonths,
+  addWeeks,
+  endOfDay,
+  endOfWeek,
+  getDay,
+  getMonth,
+  getYear,
+  isDate,
+  startOfDay,
+  startOfWeek,
+} from 'date-fns';
+import { format, startOfMonth, endOfMonth } from 'date-fns/fp';
+
+import { PrismaService } from '../prisma/prisma.service';
+import { CreateExerciseTypeReqDto } from './dto/create-exercise-type.req.dto';
+import { CreateExerciseReqDto } from './dto/create-exercise.req.dto';
+import { CreateWeightReqDto } from './dto/create-weight.req.dto';
+
+@Injectable()
+export class HealthService {
+  constructor(private prisma: PrismaService) {}
+
+  /**
+   * 기간 사이의 Exercises[] 를 반환
+   * @param userId number
+   * @param from 'yyyy-MM-dd'
+   * @param to 'yyyy-MM-dd'
+   */
+  async getExercises(userId: number, from: string, to: string) {
+    if (!isDate(new Date(from)) || !isDate(new Date(to))) {
+      throw new BadRequestException('날짜 정보를 올바르게 입력해주세요');
+    }
+
+    const start = startOfDay(new Date(from));
+    const end = endOfDay(new Date(to));
+
+    const exercises = await this.prisma.exercise.findMany({
+      where: {
+        userId,
+        date: {
+          gte: start,
+          lte: end,
+        },
+      },
+      include: {
+        exerciseType: true,
+      },
+    });
+
+    return map(exercises, (exercise) => ({
+      ...omit(exercise, 'exerciseType'), // exerciseType 은 제외
+      ...omit(exercise.exerciseType, 'id'), // exerciseType.id 는 제외하고 전개
+    }));
+  }
+
+  async getMonthExercises(
+    userId: number,
+    { year, month }: { year?: number; month?: number },
+  ) {
+    const yearToFind = year ?? getYear(new Date());
+    const monthToFind = month ? month - 1 : getMonth(new Date());
+
+    const dateToFind = new Date(yearToFind, monthToFind);
+
+    const start = flow(startOfMonth, format('yyyy-MM-dd'))(dateToFind);
+    const end = flow(endOfMonth, format('yyyy-MM-dd'))(dateToFind);
+
+    return this.getExercises(userId, start, end);
+  }
+
+  /**
+   * 한주간의 운동 여부를 boolean 객체로 반환
+   * @param userId number
+   * @param today 'yyyy-MM-dd'
+   */
+  async getWeeklyExerciseChecked(userId, today: string) {
+    const dateToFind = new Date(today);
+    if (!isDate(dateToFind)) {
+      throw new BadRequestException('날짜 정보를 올바르게 입력해주세요');
+    }
+
+    const start = flow(
+      (date: Date) => startOfWeek(date, { weekStartsOn: 1 }),
+      format('yyyy-MM-dd'),
+    )(dateToFind);
+    const end = flow(
+      (date: Date) => endOfWeek(date, { weekStartsOn: 1 }),
+      format('yyyy-MM-dd'),
+    )(dateToFind);
+
+    const exercises = await this.getExercises(userId, start, end);
+
+    const weeklyChecked = {
+      0: false,
+      1: false,
+      2: false,
+      3: false,
+      4: false,
+      5: false,
+      6: false,
+    };
+
+    exercises.forEach((exercise) => {
+      const exerciseDay = getDay(exercise.date);
+      Object.keys(weeklyChecked).forEach((index) => {
+        const dayIndex = Number(index);
+        if (dayIndex === exerciseDay) weeklyChecked[dayIndex] = true;
+      });
+    });
+
+    return weeklyChecked;
+  }
+
+  async createExercise(
+    userId: number,
+    createExerciseReqDto: CreateExerciseReqDto,
+  ) {
+    return this.prisma.exercise.create({
+      data: {
+        userId,
+        ...createExerciseReqDto,
+      },
+    });
+  }
+
+  async getAllExerciseType() {
+    return this.prisma.exerciseType.findMany();
+  }
+
+  async createExerciseType(createExerciseTypeReqDto: CreateExerciseTypeReqDto) {
+    if (!createExerciseTypeReqDto.name || !createExerciseTypeReqDto.unit) {
+      throw new BadRequestException('name 또는 unit 을 입력해주세요.');
+    }
+
+    return this.prisma.exerciseType.create({ data: createExerciseTypeReqDto });
+  }
+
+  async createWeight(userId: number, createWeightReqDto: CreateWeightReqDto) {
+    const existingWeight = await this.prisma.weight.findFirst({
+      where: {
+        date: {
+          gte: startOfDay(new Date(createWeightReqDto.date)),
+          lt: endOfDay(new Date(createWeightReqDto.date)),
+        },
+      },
+    });
+
+    // 이미 해당 일자의 체중 정보가 있다면 수정
+    if (existingWeight) {
+      return this.prisma.weight.update({
+        where: { id: existingWeight.id },
+        data: createWeightReqDto,
+      });
+    }
+
+    // 없다면 생성
+    return this.prisma.weight.create({
+      data: {
+        userId,
+        ...createWeightReqDto,
+      },
+    });
+  }
+
+  async getWeights(userId: number) {
+    const now = new Date();
+    /**
+     * 오늘의 체중을 가져온다
+     */
+    const startOfToday = startOfDay(now);
+    const endOfToday = endOfDay(now);
+    const todayWeights = await this.prisma.weight.findMany({
+      where: {
+        userId,
+        date: {
+          gte: startOfToday,
+          lte: endOfToday,
+        },
+      },
+    });
+    const todayWeight = todayWeights[0]?.weight;
+
+    /**
+     * 일주일 전 체중을 가져온다
+     */
+    const weekAgo = addWeeks(now, -1);
+    const startOfWeekAgo = startOfDay(weekAgo);
+    const endOfWeekAgo = endOfDay(addDays(now, -1));
+
+    // 일주일 전 ~ 어제까지의 체중에서 첫번쨰 체중을 반환
+    const weekAgoWeights = await this.prisma.weight.findMany({
+      where: {
+        userId,
+        date: { gte: startOfWeekAgo, lte: endOfWeekAgo },
+      },
+    });
+    const weekAgoWeight = weekAgoWeights[0]?.weight;
+
+    /**
+     * 한달 전 체중을 가져온다
+     */
+    const monthAgo = addMonths(now, -1);
+    const startOfMonthAgo = startOfDay(monthAgo);
+    const endOfMonthAgo = endOfDay(addDays(weekAgo, -1));
+    const monthAgoWeights = await this.prisma.weight.findMany({
+      where: {
+        userId,
+        date: { gte: startOfMonthAgo, lte: endOfMonthAgo },
+      },
+    });
+    const monthAgoWeight = monthAgoWeights[0]?.weight;
+
+    return {
+      monthAgo: monthAgoWeight,
+      weekAgo: weekAgoWeight,
+      today: todayWeight,
+    };
+  }
+}

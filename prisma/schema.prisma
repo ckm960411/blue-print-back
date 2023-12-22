@@ -137,9 +137,37 @@ model Project {
 }
 
 model User {
-  id       Int       @id @unique @default(autoincrement())
-  email    String    @unique
-  password String
-  role     Role
-  project  Project[]
+  id        Int        @id @unique @default(autoincrement())
+  email     String     @unique
+  password  String
+  role      Role
+  project   Project[]
+  exercises Exercise[]
+  Weight    Weight[]
+}
+
+model Exercise {
+  id             Int          @id @unique @default(autoincrement())
+  description    String?
+  exerciseType   ExerciseType @relation(fields: [exerciseTypeId], references: [id])
+  count          Int?
+  date           DateTime
+  exerciseTypeId Int
+  User           User?        @relation(fields: [userId], references: [id])
+  userId         Int?
+}
+
+model ExerciseType {
+  id       Int        @id @unique @default(autoincrement())
+  name     String
+  unit     String
+  Exercise Exercise[]
+}
+
+model Weight {
+  id     Int      @id @unique @default(autoincrement())
+  weight Float    @db.Real
+  date   DateTime
+  user   User     @relation(fields: [userId], references: [id])
+  userId Int
 }
