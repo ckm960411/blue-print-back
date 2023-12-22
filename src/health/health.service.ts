@@ -141,6 +141,24 @@ export class HealthService {
   }
 
   async createWeight(userId: number, createWeightReqDto: CreateWeightReqDto) {
+    const existingWeight = await this.prisma.weight.findFirst({
+      where: {
+        date: {
+          gte: startOfDay(new Date(createWeightReqDto.date)),
+          lt: endOfDay(new Date(createWeightReqDto.date)),
+        },
+      },
+    });
+
+    // 이미 해당 일자의 체중 정보가 있다면 수정
+    if (existingWeight) {
+      return this.prisma.weight.update({
+        where: { id: existingWeight.id },
+        data: createWeightReqDto,
+      });
+    }
+
+    // 없다면 생성
     return this.prisma.weight.create({
       data: {
         userId,
