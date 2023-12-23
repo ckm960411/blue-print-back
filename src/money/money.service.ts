@@ -1,5 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { addMonths, getMonth, getYear, isBefore, isWeekend } from 'date-fns';
+import {
+  format,
+  addMonths,
+  getMonth,
+  getYear,
+  isBefore,
+  isWeekend,
+  addDays,
+} from 'date-fns';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateMonthlyBudgetReqDto } from './dto/create-monthly-budget.req.dto';
 
@@ -27,8 +35,13 @@ export class MoneyService {
   }
 
   async createMonthlyBudget(userId: number, data: CreateMonthlyBudgetReqDto) {
+    const startDate = this.findMonthlyBudgetStartDay(data.year, data.month);
+    const start = format(startDate, 'yyyy-MM-dd');
+    const endDate = this.findMonthlyBudgetEndDay(data.year, data.month);
+    const end = format(endDate, 'yyyy-MM-dd');
+
     return this.prisma.monthlyBudget.create({
-      data: { userId, ...data },
+      data: { userId, ...data, start, end, budget: data.budget ?? 0 },
     });
   }
 
@@ -44,5 +57,20 @@ export class MoneyService {
       return new Date(year, month - 1, 13);
     }
     return new Date(year, month - 1, 14);
+  }
+
+  findMonthlyBudgetEndDay(year: number, month: number) {
+    const dateToFind = new Date(year, month - 1);
+    // 한달을 더함
+    const dateMonthAdded = addMonths(dateToFind, 1);
+    const yearAdded = getYear(dateMonthAdded);
+    const monthAdded = getMonth(dateMonthAdded) + 1;
+
+    // 다음달의 시작일
+    const startDateAdded = this.findMonthlyBudgetStartDay(
+      yearAdded,
+      monthAdded,
+    );
+    return addDays(startDateAdded, -1);
   }
 }
