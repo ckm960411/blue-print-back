@@ -24,6 +24,11 @@ enum Role {
   GUEST
 }
 
+enum MonthlyBudgetType {
+  SUM
+  SPECIFIED
+}
+
 // models
 model Tag {
   id          Int        @id @unique @default(autoincrement())
@@ -170,4 +175,30 @@ model Weight {
   date   DateTime
   user   User     @relation(fields: [userId], references: [id])
   userId Int
+}
+
+model MontlyBudget {
+  id     Int               @id @unique @default(autoincrement())
+  year   Int
+  month  Int
+  type   MonthlyBudgetType
+  budget Int?
+  start  String
+  end    String
+}
+
+model BudgetCategory {
+  id                    Int                     @id @unique @default(autoincrement())
+  name                  String
+  unicode               String
+  MonthlyBudgetCategory MonthlyBudgetCategory[]
+}
+
+model MonthlyBudgetCategory {
+  id               Int             @id @unique @default(autoincrement())
+  BudgetCategory   BudgetCategory? @relation(fields: [budgetCategoryId], references: [id])
+  budgetCategoryId Int?
+  year             Int
+  month            Int
+  budget           Int
 }
