@@ -1,8 +1,19 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { User } from '../../utils/decorators/user.decorator';
 import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
 import { UserEntity } from '../user/entity/user.entity';
 import { CreateMonthlyBudgetReqDto } from './dto/create-monthly-budget.req.dto';
+import { UpdateMonthlyBudgetReqDto } from './dto/update-monthly-budget.req.dto';
 import { MoneyService } from './money.service';
 
 @Controller('money')
@@ -25,5 +36,19 @@ export class MoneyController {
     @Body() data: CreateMonthlyBudgetReqDto,
   ) {
     return this.moneyService.createMonthlyBudget(user.id, data);
+  }
+
+  @Patch('budget/monthly/:id')
+  @UseGuards(JwtAuthGuard)
+  async updateMonthlyBudget(
+    @User() user: UserEntity,
+    @Param('id', new ParseIntPipe()) budgetId: number,
+    @Body() updateMonthlyBudget: UpdateMonthlyBudgetReqDto,
+  ) {
+    return this.moneyService.updateMonthlyBudget(
+      user.id,
+      budgetId,
+      updateMonthlyBudget,
+    );
   }
 }

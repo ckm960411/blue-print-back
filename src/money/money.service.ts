@@ -11,6 +11,7 @@ import {
 } from 'date-fns';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateMonthlyBudgetReqDto } from './dto/create-monthly-budget.req.dto';
+import { UpdateMonthlyBudgetReqDto } from './dto/update-monthly-budget.req.dto';
 
 @Injectable()
 export class MoneyService {
@@ -60,6 +61,17 @@ export class MoneyService {
 
     return this.prisma.monthlyBudget.create({
       data: { userId, ...data, start, end, budget: data.budget ?? 0 },
+    });
+  }
+
+  async updateMonthlyBudget(
+    userId: number,
+    budgetId: number,
+    data: UpdateMonthlyBudgetReqDto,
+  ) {
+    return this.prisma.monthlyBudget.update({
+      where: { userId, id: budgetId },
+      data,
     });
   }
 
