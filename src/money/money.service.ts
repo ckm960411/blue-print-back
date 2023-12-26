@@ -7,6 +7,7 @@ import {
   isBefore,
   isWeekend,
   addDays,
+  isAfter,
 } from 'date-fns';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateMonthlyBudgetReqDto } from './dto/create-monthly-budget.req.dto';
@@ -35,10 +36,27 @@ export class MoneyService {
   }
 
   async createMonthlyBudget(userId: number, data: CreateMonthlyBudgetReqDto) {
-    const startDate = this.findMonthlyBudgetStartDay(data.year, data.month);
-    const start = format(startDate, 'yyyy-MM-dd');
-    const endDate = this.findMonthlyBudgetEndDay(data.year, data.month);
-    const end = format(endDate, 'yyyy-MM-dd');
+    const today = new Date();
+
+    let startDate = this.findMonthlyBudgetStartDay(data.year, data.month);
+    let start = format(startDate, 'yyyy-MM-dd');
+    let endDate = this.findMonthlyBudgetEndDay(data.year, data.month);
+    let end = format(endDate, 'yyyy-MM-dd');
+
+    if (isAfter(today, startDate)) {
+      return this.prisma.monthlyBudget.create({
+        data: { userId, ...data, start, end, budget: data.budget ?? 0 },
+      });
+    }
+
+    const lastMonth = addMonths(today, -1);
+    const year = getYear(lastMonth);
+    const month = getMonth(lastMonth) + 1;
+
+    startDate = this.findMonthlyBudgetStartDay(year, month);
+    start = format(startDate, 'yyyy-MM-dd');
+    endDate = this.findMonthlyBudgetEndDay(year, month);
+    end = format(endDate, 'yyyy-MM-dd');
 
     return this.prisma.monthlyBudget.create({
       data: { userId, ...data, start, end, budget: data.budget ?? 0 },
