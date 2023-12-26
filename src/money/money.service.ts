@@ -76,8 +76,19 @@ export class MoneyService {
     });
   }
 
+  async getBudgetCategories(userId: number) {
+    return this.prisma.budgetCategory.findMany({
+      where: { userId },
+    });
+  }
+
   async createBudgetCategory(userId: number, data: CreateBudgetCategoryReqDto) {
-    return this.prisma.budgetCategory.create({ data });
+    return this.prisma.budgetCategory.create({
+      data: {
+        userId,
+        ...data,
+      },
+    });
   }
 
   findMonthlyBudgetStartDay(year: number, month: number) {

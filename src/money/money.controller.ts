@@ -53,6 +53,12 @@ export class MoneyController {
     );
   }
 
+  @Get('budget/category')
+  @UseGuards(JwtAuthGuard)
+  async getAllBudgetCategories(@User() user: UserEntity) {
+    return this.moneyService.getBudgetCategories(user.id);
+  }
+
   @Post('budget/category')
   @UseGuards(JwtAuthGuard)
   async createBudgetCategory(
