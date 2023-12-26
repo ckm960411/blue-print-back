@@ -10,6 +10,7 @@ import {
   isAfter,
 } from 'date-fns';
 import { PrismaService } from '../prisma/prisma.service';
+import { CreateBudgetCategoryReqDto } from './dto/create-budget-category.req.dto';
 import { CreateMonthlyBudgetReqDto } from './dto/create-monthly-budget.req.dto';
 import { UpdateMonthlyBudgetReqDto } from './dto/update-monthly-budget.req.dto';
 
@@ -73,6 +74,10 @@ export class MoneyService {
       where: { userId, id: budgetId },
       data,
     });
+  }
+
+  async createBudgetCategory(userId: number, data: CreateBudgetCategoryReqDto) {
+    return this.prisma.budgetCategory.create({ data });
   }
 
   findMonthlyBudgetStartDay(year: number, month: number) {
