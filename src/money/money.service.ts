@@ -9,6 +9,7 @@ import {
   addDays,
   isAfter,
 } from 'date-fns';
+import { omit } from 'lodash';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateBudgetCategoryReqDto } from './dto/create-budget-category.req.dto';
 import { CreateMonthlyBudgetCategoryReqDto } from './dto/create-monthly-budget-category.req.dto';
@@ -96,9 +97,20 @@ export class MoneyService {
     userId: number,
     monthlyBudgetId: number,
   ) {
-    return this.prisma.monthlyBudgetCategory.findMany({
+    const categories = await this.prisma.monthlyBudgetCategory.findMany({
       where: { userId, monthlyBudgetId },
+      include: { MonthlyBudget: true, BudgetCategory: true },
     });
+
+    return categories.map((category) => ({
+      ...omit(category, ['MonthlyBudget', 'BudgetCategory']),
+      year: category.MonthlyBudget.year,
+      month: category.MonthlyBudget.month,
+      start: category.MonthlyBudget.start,
+      end: category.MonthlyBudget.end,
+      categoryName: category.BudgetCategory.name,
+      categoryUnicode: category.BudgetCategory.unicode,
+    }));
   }
 
   async createMonthlyBudgetCategory(
