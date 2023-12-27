@@ -142,15 +142,16 @@ model Project {
 }
 
 model User {
-  id             Int              @id @unique @default(autoincrement())
-  email          String           @unique
-  password       String
-  role           Role
-  project        Project[]
-  exercises      Exercise[]
-  Weight         Weight[]
-  MonthlyBudget  MonthlyBudget[]
-  BudgetCategory BudgetCategory[]
+  id                    Int                     @id @unique @default(autoincrement())
+  email                 String                  @unique
+  password              String
+  role                  Role
+  project               Project[]
+  exercises             Exercise[]
+  Weight                Weight[]
+  MonthlyBudget         MonthlyBudget[]
+  BudgetCategory        BudgetCategory[]
+  MonthlyBudgetCategory MonthlyBudgetCategory[]
 }
 
 model Exercise {
@@ -208,4 +209,6 @@ model MonthlyBudgetCategory {
   budget           Int
   MonthlyBudget    MonthlyBudget   @relation(fields: [monthlyBudgetId], references: [id])
   monthlyBudgetId  Int
+  User             User            @relation(fields: [userId], references: [id])
+  userId           Int
 }
