@@ -104,6 +104,23 @@ export class MoneyService {
     });
   }
 
+  async deleteBudgetCategory(userId: number, categoryId: number) {
+    const monthlyBudgetCategories =
+      await this.prisma.monthlyBudgetCategory.findMany({
+        where: { budgetCategoryId: categoryId },
+      });
+
+    for (const monthlyBudgetCategory of monthlyBudgetCategories) {
+      await this.prisma.monthlyBudgetCategory.delete({
+        where: { id: monthlyBudgetCategory.id },
+      });
+    }
+
+    return this.prisma.budgetCategory.delete({
+      where: { userId, id: categoryId },
+    });
+  }
+
   async getMonthlyBudgetCategoriesByMonthlyBudget(
     userId: number,
     monthlyBudgetId: number,

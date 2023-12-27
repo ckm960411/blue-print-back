@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -80,6 +81,15 @@ export class MoneyController {
     @Body() data: Partial<CreateBudgetCategoryReqDto>,
   ) {
     return this.moneyService.updateBudgetCategory(user.id, categoryId, data);
+  }
+
+  @Delete('budget/category/:id')
+  @UseGuards(JwtAuthGuard)
+  async deleteBudgetCategory(
+    @User() user: UserEntity,
+    @Param('id', new ParseIntPipe()) categoryId: number,
+  ) {
+    return this.moneyService.deleteBudgetCategory(user.id, categoryId);
   }
 
   @Get('budget/category/monthly')
