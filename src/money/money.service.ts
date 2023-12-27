@@ -93,6 +93,17 @@ export class MoneyService {
     });
   }
 
+  async updateBudgetCategory(
+    userId: number,
+    categoryId: number,
+    data: Partial<CreateBudgetCategoryReqDto>,
+  ) {
+    return this.prisma.budgetCategory.update({
+      where: { userId, id: categoryId },
+      data,
+    });
+  }
+
   async getMonthlyBudgetCategoriesByMonthlyBudget(
     userId: number,
     monthlyBudgetId: number,

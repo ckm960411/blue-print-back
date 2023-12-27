@@ -72,6 +72,16 @@ export class MoneyController {
     );
   }
 
+  @Patch('budget/category/:id')
+  @UseGuards(JwtAuthGuard)
+  async updateBudgetCategory(
+    @User() user: UserEntity,
+    @Param('id', new ParseIntPipe()) categoryId: number,
+    @Body() data: Partial<CreateBudgetCategoryReqDto>,
+  ) {
+    return this.moneyService.updateBudgetCategory(user.id, categoryId, data);
+  }
+
   @Get('budget/category/monthly')
   @UseGuards(JwtAuthGuard)
   async getMonthlyBudgetCategoriesByMonthlyBudget(
