@@ -72,6 +72,18 @@ export class MoneyController {
     );
   }
 
+  @Get('budget/category/monthly')
+  @UseGuards(JwtAuthGuard)
+  async getMonthlyBudgetCategoriesByMonthlyBudget(
+    @User() user: UserEntity,
+    @Query('monthlyBudgetId', new ParseIntPipe()) monthlyBudgetId: number,
+  ) {
+    return this.moneyService.getMonthlyBudgetCategoriesByMonthlyBudget(
+      user.id,
+      monthlyBudgetId,
+    );
+  }
+
   @Post('budget/category/monthly')
   @UseGuards(JwtAuthGuard)
   async createMonthlyBudgetCategory(

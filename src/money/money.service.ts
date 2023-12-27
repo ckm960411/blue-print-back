@@ -92,6 +92,15 @@ export class MoneyService {
     });
   }
 
+  async getMonthlyBudgetCategoriesByMonthlyBudget(
+    userId: number,
+    monthlyBudgetId: number,
+  ) {
+    return this.prisma.monthlyBudgetCategory.findMany({
+      where: { userId, monthlyBudgetId },
+    });
+  }
+
   async createMonthlyBudgetCategory(
     userId: number,
     data: CreateMonthlyBudgetCategoryReqDto,
