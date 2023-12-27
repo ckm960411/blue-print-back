@@ -13,6 +13,7 @@ import { User } from '../../utils/decorators/user.decorator';
 import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
 import { UserEntity } from '../user/entity/user.entity';
 import { CreateBudgetCategoryReqDto } from './dto/create-budget-category.req.dto';
+import { CreateMonthlyBudgetCategoryReqDto } from './dto/create-monthly-budget-category.req.dto';
 import { CreateMonthlyBudgetReqDto } from './dto/create-monthly-budget.req.dto';
 import { UpdateMonthlyBudgetReqDto } from './dto/update-monthly-budget.req.dto';
 import { MoneyService } from './money.service';
@@ -69,5 +70,14 @@ export class MoneyController {
       user.id,
       createBudgetCategoryReqDto,
     );
+  }
+
+  @Post('budget/category/monthly')
+  @UseGuards(JwtAuthGuard)
+  async createMonthlyBudgetCategory(
+    @User() user: UserEntity,
+    @Body() data: CreateMonthlyBudgetCategoryReqDto,
+  ) {
+    return this.moneyService.createMonthlyBudgetCategory(user.id, data);
   }
 }
