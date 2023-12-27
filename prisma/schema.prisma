@@ -180,15 +180,16 @@ model Weight {
 }
 
 model MonthlyBudget {
-  id     Int               @id @unique @default(autoincrement())
-  year   Int
-  month  Int
-  type   MonthlyBudgetType
-  budget Int?
-  start  String
-  end    String
-  User   User?             @relation(fields: [userId], references: [id])
-  userId Int?
+  id                    Int                     @id @unique @default(autoincrement())
+  year                  Int
+  month                 Int
+  type                  MonthlyBudgetType
+  budget                Int?
+  start                 String
+  end                   String
+  User                  User?                   @relation(fields: [userId], references: [id])
+  userId                Int?
+  MonthlyBudgetCategory MonthlyBudgetCategory[]
 }
 
 model BudgetCategory {
@@ -204,7 +205,7 @@ model MonthlyBudgetCategory {
   id               Int             @id @unique @default(autoincrement())
   BudgetCategory   BudgetCategory? @relation(fields: [budgetCategoryId], references: [id])
   budgetCategoryId Int?
-  year             Int
-  month            Int
   budget           Int
+  MonthlyBudget    MonthlyBudget   @relation(fields: [monthlyBudgetId], references: [id])
+  monthlyBudgetId  Int
 }
