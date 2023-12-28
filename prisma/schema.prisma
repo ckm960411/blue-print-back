@@ -29,6 +29,11 @@ enum MonthlyBudgetType {
   SPECIFIED
 }
 
+enum ExpenditureType {
+  INCOME
+  SPENDING
+}
+
 // models
 model Tag {
   id          Int        @id @unique @default(autoincrement())
@@ -152,6 +157,7 @@ model User {
   MonthlyBudget         MonthlyBudget[]
   BudgetCategory        BudgetCategory[]
   MonthlyBudgetCategory MonthlyBudgetCategory[]
+  Expenditure           Expenditure[]
 }
 
 model Exercise {
@@ -211,4 +217,18 @@ model MonthlyBudgetCategory {
   monthlyBudgetId  Int
   User             User            @relation(fields: [userId], references: [id])
   userId           Int
+  Expenditure      Expenditure[]
+}
+
+model Expenditure {
+  id                      Int                    @id @unique @default(autoincrement())
+  type                    ExpenditureType
+  year                    Int
+  month                   Int
+  price                   Int
+  createdAt               DateTime               @default(now())
+  User                    User                   @relation(fields: [userId], references: [id])
+  userId                  Int
+  MonthlyBudgetCategory   MonthlyBudgetCategory? @relation(fields: [monthlyBudgetCategoryId], references: [id])
+  monthlyBudgetCategoryId Int?
 }
