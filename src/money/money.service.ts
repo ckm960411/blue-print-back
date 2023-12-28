@@ -12,6 +12,7 @@ import {
 import { omit } from 'lodash';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateBudgetCategoryReqDto } from './dto/create-budget-category.req.dto';
+import { CreateExpenditureReqDto } from './dto/create-expenditure.req.dto';
 import { CreateMonthlyBudgetCategoryReqDto } from './dto/create-monthly-budget-category.req.dto';
 import { CreateMonthlyBudgetReqDto } from './dto/create-monthly-budget.req.dto';
 import { UpdateMonthlyBudgetReqDto } from './dto/update-monthly-budget.req.dto';
@@ -147,6 +148,13 @@ export class MoneyService {
   ) {
     return this.prisma.monthlyBudgetCategory.create({
       data: { userId, ...data },
+    });
+  }
+
+  async createExpenditure(userId: number, data: CreateExpenditureReqDto) {
+    return this.prisma.expenditure.create({
+      data: { userId, ...data },
+      include: { MonthlyBudgetCategory: true },
     });
   }
 
