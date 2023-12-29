@@ -10,6 +10,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { OptionalIntPipe } from '../../utils/decorators/optional-int.pipe';
 import { User } from '../../utils/decorators/user.decorator';
 import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
 import { UserEntity } from '../user/entity/user.entity';
@@ -112,6 +113,21 @@ export class MoneyController {
     @Body() data: CreateMonthlyBudgetCategoryReqDto,
   ) {
     return this.moneyService.createMonthlyBudgetCategory(user.id, data);
+  }
+
+  @Get('expenditure/')
+  @UseGuards(JwtAuthGuard)
+  async getMonthlyExpenditures(
+    @User() user: UserEntity,
+    @Query('year', new OptionalIntPipe()) year?: number,
+    @Query('month', new OptionalIntPipe()) month?: number,
+    @Query('category') category?: string,
+  ) {
+    return this.moneyService.getMonthlyExpenditures(user.id, {
+      year,
+      month,
+      category,
+    });
   }
 
   @Post('expenditure')

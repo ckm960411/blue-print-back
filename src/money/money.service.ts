@@ -8,8 +8,15 @@ import {
   isWeekend,
   addDays,
   isAfter,
+  getDate,
 } from 'date-fns';
 import { omit } from 'lodash';
+import {
+  pipe,
+  filter as filterFp,
+  groupBy as groupByFp,
+  map as mapFp,
+} from 'lodash/fp';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateBudgetCategoryReqDto } from './dto/create-budget-category.req.dto';
 import { CreateExpenditureReqDto } from './dto/create-expenditure.req.dto';
@@ -149,6 +156,65 @@ export class MoneyService {
     return this.prisma.monthlyBudgetCategory.create({
       data: { userId, ...data },
     });
+  }
+
+  async getMonthlyExpenditures(
+    userId: number,
+    data: { year?: number; month?: number; category?: string },
+  ) {
+    const expenditures = await this.prisma.expenditure.findMany({
+      where: { userId, year: data.year, month: data.month },
+      include: { MonthlyBudgetCategory: true },
+      orderBy: { createdAt: 'desc' },
+    });
+    type Expenditure = (typeof expenditures)[number];
+
+    const categories = await this.getBudgetCategories(userId);
+
+    return pipe(
+      // category 가 있다면 필터링
+      filterFp((expenditure: Expenditure) => {
+        if (!data?.category) return true;
+        const category = categories.find((category) => {
+          return (
+            category.id ===
+              expenditure?.MonthlyBudgetCategory?.budgetCategoryId &&
+            category.name === data.category
+          );
+        });
+        return !!category;
+      }),
+      // 일자별로 그룹
+      groupByFp((expenditure: Expenditure) =>
+        getDate(new Date(expenditure.createdAt)),
+      ),
+      // 그룹된 values 만 취득
+      Object.values,
+      // 그룹된 것들의 공통 date, income 합, spending 합 포함해 반환
+      mapFp((expenditures: Expenditure[]) => ({
+        date: format(expenditures[0]?.createdAt, 'yyyy-MM-dd'),
+        income: expenditures.reduce((acc, cur) => {
+          return acc + (cur.type === 'INCOME' ? cur.price : 0);
+        }, 0),
+        spending: expenditures.reduce((acc, cur) => {
+          return acc + (cur.type === 'SPENDING' ? cur.price : 0);
+        }, 0),
+        data: expenditures.map((expenditure) => {
+          const category = categories.find((category) => {
+            return (
+              category.id ===
+              expenditure?.MonthlyBudgetCategory?.budgetCategoryId
+            );
+          });
+          return {
+            ...omit(expenditure, 'MonthlyBudgetCategory'),
+            budgetCategoryId: category?.id,
+            budgetCategoryName: category?.name,
+            budgetCategoryUnicode: category?.unicode,
+          };
+        }),
+      })),
+    )(expenditures);
   }
 
   async createExpenditure(userId: number, data: CreateExpenditureReqDto) {
