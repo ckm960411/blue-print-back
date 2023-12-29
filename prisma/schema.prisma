@@ -225,6 +225,7 @@ model Expenditure {
   type                    ExpenditureType
   year                    Int
   month                   Int
+  content                 String
   price                   Int
   createdAt               DateTime               @default(now())
   User                    User                   @relation(fields: [userId], references: [id])
