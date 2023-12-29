@@ -115,6 +115,19 @@ export class MoneyController {
     return this.moneyService.createMonthlyBudgetCategory(user.id, data);
   }
 
+  @Get('expenditure/monthly')
+  @UseGuards(JwtAuthGuard)
+  async getTotalMonthlyExpenditure(
+    @User() user: UserEntity,
+    @Query('year', new OptionalIntPipe()) year?: number,
+    @Query('month', new OptionalIntPipe()) month?: number,
+  ) {
+    return this.moneyService.getTotalMonthlyExpenditure(user.id, {
+      year,
+      month,
+    });
+  }
+
   @Get('expenditure/')
   @UseGuards(JwtAuthGuard)
   async getMonthlyExpenditures(

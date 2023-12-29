@@ -158,6 +158,24 @@ export class MoneyService {
     });
   }
 
+  async getTotalMonthlyExpenditure(
+    userId: number,
+    data: { year: number; month: number },
+  ) {
+    const expenditures = await this.prisma.expenditure.findMany({
+      where: { userId, year: data.year, month: data.month },
+    });
+
+    const income = expenditures.reduce((acc, cur) => {
+      return acc + (cur.type === 'INCOME' ? cur.price : 0);
+    }, 0);
+    const spending = expenditures.reduce((acc, cur) => {
+      return acc + (cur.type === 'SPENDING' ? cur.price : 0);
+    }, 0);
+
+    return { income, spending };
+  }
+
   async getMonthlyExpenditures(
     userId: number,
     data: { year?: number; month?: number; category?: string },
