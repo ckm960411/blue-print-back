@@ -225,6 +225,9 @@ model Expenditure {
   type                    ExpenditureType
   year                    Int
   month                   Int
+  date                    Int
+  hour                    Int
+  minute                  Int
   content                 String
   price                   Int
   createdAt               DateTime               @default(now())
