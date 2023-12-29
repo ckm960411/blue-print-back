@@ -183,7 +183,7 @@ export class MoneyService {
     const expenditures = await this.prisma.expenditure.findMany({
       where: { userId, year: data.year, month: data.month },
       include: { MonthlyBudgetCategory: true },
-      orderBy: { createdAt: 'desc' },
+      orderBy: [{ hour: 'desc' }, { minute: 'desc' }],
     });
     type Expenditure = (typeof expenditures)[number];
 
@@ -203,14 +203,19 @@ export class MoneyService {
         return !!category;
       }),
       // 일자별로 그룹
-      groupByFp((expenditure: Expenditure) =>
-        getDate(new Date(expenditure.createdAt)),
-      ),
+      groupByFp((expenditure: Expenditure) => expenditure.date),
       // 그룹된 values 만 취득
       Object.values,
       // 그룹된 것들의 공통 date, income 합, spending 합 포함해 반환
       mapFp((expenditures: Expenditure[]) => ({
-        date: format(expenditures[0]?.createdAt, 'yyyy-MM-dd'),
+        date: format(
+          new Date(
+            expenditures[0].year,
+            expenditures[0].month - 1,
+            expenditures[0].date,
+          ),
+          'yyyy-MM-dd',
+        ),
         income: expenditures.reduce((acc, cur) => {
           return acc + (cur.type === 'INCOME' ? cur.price : 0);
         }, 0),
@@ -237,7 +242,7 @@ export class MoneyService {
 
   async createExpenditure(userId: number, data: CreateExpenditureReqDto) {
     return this.prisma.expenditure.create({
-      data: { userId, ...data },
+      data: { userId, ...data, hour: data.hour ?? 0, minute: data.minute ?? 0 },
       include: { MonthlyBudgetCategory: true },
     });
   }
