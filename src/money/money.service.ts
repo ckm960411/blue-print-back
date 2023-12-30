@@ -14,6 +14,7 @@ import {
   pipe,
   filter as filterFp,
   groupBy as groupByFp,
+  orderBy as orderByFp,
   map as mapFp,
 } from 'lodash/fp';
 import { PrismaService } from '../prisma/prisma.service';
@@ -182,7 +183,7 @@ export class MoneyService {
     const expenditures = await this.prisma.expenditure.findMany({
       where: { userId, year: data.year, month: data.month },
       include: { MonthlyBudgetCategory: true, BudgetCategory: true },
-      orderBy: [{ hour: 'desc' }, { minute: 'desc' }],
+      orderBy: [{ hour: 'asc' }, { minute: 'asc' }], // 시간은 오름차순 정렬
     });
     type Expenditure = (typeof expenditures)[number];
 
@@ -221,6 +222,11 @@ export class MoneyService {
           };
         }),
       })),
+      // 일자 내림차순 정렬
+      orderByFp(
+        (dailyExpenditure: { date: string }) => dailyExpenditure.date,
+        ['desc'],
+      ),
     )(expenditures);
   }
 
