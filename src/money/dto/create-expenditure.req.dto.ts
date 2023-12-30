@@ -8,4 +8,5 @@ export interface CreateExpenditureReqDto {
   content: string;
   price: number;
   monthlyBudgetCategoryId?: number;
+  budgetCategoryId?: number;
 }
