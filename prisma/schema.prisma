@@ -206,6 +206,7 @@ model BudgetCategory {
   MonthlyBudgetCategory MonthlyBudgetCategory[]
   user                  User                    @relation(fields: [userId], references: [id])
   userId                Int
+  Expenditure           Expenditure[]
 }
 
 model MonthlyBudgetCategory {
@@ -235,4 +236,6 @@ model Expenditure {
   userId                  Int
   MonthlyBudgetCategory   MonthlyBudgetCategory? @relation(fields: [monthlyBudgetCategoryId], references: [id])
   monthlyBudgetCategoryId Int?
+  BudgetCategory          BudgetCategory?        @relation(fields: [budgetCategoryId], references: [id])
+  budgetCategoryId        Int?
 }
