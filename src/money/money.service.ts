@@ -8,7 +8,6 @@ import {
   isWeekend,
   addDays,
   isAfter,
-  getDate,
 } from 'date-fns';
 import { omit } from 'lodash';
 import {
@@ -182,25 +181,16 @@ export class MoneyService {
   ) {
     const expenditures = await this.prisma.expenditure.findMany({
       where: { userId, year: data.year, month: data.month },
-      include: { MonthlyBudgetCategory: true },
+      include: { MonthlyBudgetCategory: true, BudgetCategory: true },
       orderBy: [{ hour: 'desc' }, { minute: 'desc' }],
     });
     type Expenditure = (typeof expenditures)[number];
-
-    const categories = await this.getBudgetCategories(userId);
 
     return pipe(
       // category 가 있다면 필터링
       filterFp((expenditure: Expenditure) => {
         if (!data?.category) return true;
-        const category = categories.find((category) => {
-          return (
-            category.id ===
-              expenditure?.MonthlyBudgetCategory?.budgetCategoryId &&
-            category.name === data.category
-          );
-        });
-        return !!category;
+        return data.category === expenditure?.BudgetCategory?.name;
       }),
       // 일자별로 그룹
       groupByFp((expenditure: Expenditure) => expenditure.date),
@@ -223,17 +213,11 @@ export class MoneyService {
           return acc + (cur.type === 'SPENDING' ? cur.price : 0);
         }, 0),
         data: expenditures.map((expenditure) => {
-          const category = categories.find((category) => {
-            return (
-              category.id ===
-              expenditure?.MonthlyBudgetCategory?.budgetCategoryId
-            );
-          });
           return {
-            ...omit(expenditure, 'MonthlyBudgetCategory'),
-            budgetCategoryId: category?.id,
-            budgetCategoryName: category?.name,
-            budgetCategoryUnicode: category?.unicode,
+            ...omit(expenditure, ['BudgetCategory']),
+            budgetCategoryId: expenditure?.BudgetCategory?.id,
+            budgetCategoryName: expenditure?.BudgetCategory?.name,
+            budgetCategoryUnicode: expenditure?.BudgetCategory?.unicode,
           };
         }),
       })),
