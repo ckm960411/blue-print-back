@@ -10,7 +10,7 @@ import {
   isAfter,
   isSameDay,
 } from 'date-fns';
-import { omit } from 'lodash';
+import { omit, orderBy, sortBy } from 'lodash';
 import {
   pipe,
   filter as filterFp,
@@ -136,17 +136,26 @@ export class MoneyService {
   ) {
     const categories = await this.prisma.monthlyBudgetCategory.findMany({
       where: { userId, monthlyBudgetId },
-      include: { MonthlyBudget: true, BudgetCategory: true },
+      include: { MonthlyBudget: true, BudgetCategory: true, Expenditure: true },
     });
 
     return categories.map((category) => ({
-      ...omit(category, ['MonthlyBudget', 'BudgetCategory']),
+      ...omit(category, ['MonthlyBudget', 'BudgetCategory', 'Expenditure']),
       year: category.MonthlyBudget.year,
       month: category.MonthlyBudget.month,
       start: category.MonthlyBudget.start,
       end: category.MonthlyBudget.end,
       categoryName: category.BudgetCategory.name,
       categoryUnicode: category.BudgetCategory.unicode,
+      expenditures: orderBy(
+        category.Expenditure,
+        (e) => new Date(e.year, e.month - 1, e.date, e.hour, e.minute),
+        ['desc'],
+      ),
+      spent: category.Expenditure.reduce((acc, cur) => {
+        if (cur.type === 'INCOME') return acc;
+        return acc + cur.price;
+      }, 0),
     }));
   }
 
@@ -290,8 +299,29 @@ export class MoneyService {
   }
 
   async createExpenditure(userId: number, data: CreateExpenditureReqDto) {
+    const monthlyBudget = await this.getMonthlyBudget(
+      userId,
+      format(new Date(), 'yyyy-MM-dd'),
+    );
+
+    const monthlyBudgetCategories =
+      await this.getMonthlyBudgetCategoriesByMonthlyBudget(
+        userId,
+        monthlyBudget.id,
+      );
+    const monthlyBudgetCategory = monthlyBudgetCategories.find(
+      (monthlyBudgetCategory) =>
+        monthlyBudgetCategory.budgetCategoryId === data.budgetCategoryId,
+    );
+
     return this.prisma.expenditure.create({
-      data: { userId, ...data, hour: data.hour ?? 0, minute: data.minute ?? 0 },
+      data: {
+        userId,
+        ...data,
+        hour: data.hour ?? 0,
+        minute: data.minute ?? 0,
+        monthlyBudgetCategoryId: monthlyBudgetCategory?.id,
+      },
       include: { MonthlyBudgetCategory: true },
     });
   }
