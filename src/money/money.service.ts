@@ -37,6 +37,10 @@ export class MoneyService {
     });
   }
 
+  async getBalance(userId: number) {
+    return this.prisma.money.findFirst({ where: { userId } });
+  }
+
   /**
    * @param userId userId
    * @param date yyyy-MM-dd
