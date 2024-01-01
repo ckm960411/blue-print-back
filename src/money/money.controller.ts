@@ -25,6 +25,16 @@ import { MoneyService } from './money.service';
 export class MoneyController {
   constructor(private readonly moneyService: MoneyService) {}
 
+  @Post('balance/:userId')
+  @UseGuards(JwtAuthGuard)
+  async upsertBalance(
+    @User() user: UserEntity,
+    @Param('userId', new ParseIntPipe()) userId: number,
+    @Body('balance') balance: number,
+  ) {
+    return this.moneyService.upsertBalance(user.id, balance);
+  }
+
   @Get('budget/monthly')
   @UseGuards(JwtAuthGuard)
   async getMonthlyBudget(

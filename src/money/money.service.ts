@@ -10,7 +10,7 @@ import {
   isAfter,
   isSameDay,
 } from 'date-fns';
-import { omit, orderBy, sortBy } from 'lodash';
+import { omit, orderBy } from 'lodash';
 import {
   pipe,
   filter as filterFp,
@@ -28,6 +28,14 @@ import { UpdateMonthlyBudgetReqDto } from './dto/update-monthly-budget.req.dto';
 @Injectable()
 export class MoneyService {
   constructor(private prisma: PrismaService) {}
+
+  async upsertBalance(userId: number, balance: number) {
+    return this.prisma.money.upsert({
+      where: { userId },
+      create: { userId, balance },
+      update: { balance },
+    });
+  }
 
   /**
    * @param userId userId
