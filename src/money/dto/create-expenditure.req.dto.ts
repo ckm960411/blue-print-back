@@ -1,5 +1,6 @@
 export interface CreateExpenditureReqDto {
   type: 'INCOME' | 'SPENDING';
+  spendingType?: 'CARD' | 'CASH';
   year: number;
   month: number;
   date: number;

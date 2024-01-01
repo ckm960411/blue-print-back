@@ -326,6 +326,11 @@ export class MoneyService {
         monthlyBudgetCategory.budgetCategoryId === data.budgetCategoryId,
     );
 
+    if (data.type === 'SPENDING' && data.spendingType === 'CASH') {
+      const { balance } = await this.getBalance(userId);
+      await this.upsertBalance(userId, balance - data.price);
+    }
+
     return this.prisma.expenditure.create({
       data: {
         userId,
