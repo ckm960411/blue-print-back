@@ -128,7 +128,17 @@ export class MoneyController {
     });
   }
 
-  @Get('expenditure/')
+  @Get('expenditure/:year/:month')
+  @UseGuards(JwtAuthGuard)
+  async getMonthlySpending(
+    @User() user: UserEntity,
+    @Param('year', new ParseIntPipe()) year: number,
+    @Param('month', new ParseIntPipe()) month: number,
+  ) {
+    return this.moneyService.getMonthlySpending(user.id, { year, month });
+  }
+
+  @Get('expenditure')
   @UseGuards(JwtAuthGuard)
   async getMonthlyExpenditures(
     @User() user: UserEntity,

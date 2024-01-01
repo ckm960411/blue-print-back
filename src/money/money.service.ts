@@ -8,6 +8,7 @@ import {
   isWeekend,
   addDays,
   isAfter,
+  isSameDay,
 } from 'date-fns';
 import { omit } from 'lodash';
 import {
@@ -176,6 +177,64 @@ export class MoneyService {
     return { income, spending };
   }
 
+  async getExpenditures(userId: number, data: { year: number; month: number }) {
+    const startDate = this.findMonthlyBudgetStartDay(data.year, data.month);
+    const start = format(startDate, 'yyyy-MM-dd');
+    const endDate = this.findMonthlyBudgetEndDay(data.year, data.month);
+    const end = format(endDate, 'yyyy-MM-dd');
+
+    const thisMonthExpenditures = await this.prisma.expenditure.findMany({
+      where: { userId, year: data.year, month: data.month },
+    });
+    const { year: yearAdded, month: monthAdded } = this.findNextYearAndMonth(
+      data.year,
+      data.month,
+    );
+    const nextMonthExpenditures = await this.prisma.expenditure.findMany({
+      where: { userId, year: yearAdded, month: monthAdded },
+    });
+
+    return [...thisMonthExpenditures, ...nextMonthExpenditures].filter(
+      (expenditure) => {
+        const date = new Date(
+          expenditure.year,
+          expenditure.month - 1,
+          expenditure.date,
+        );
+        return (
+          isAfter(date, addDays(new Date(start), -1)) &&
+          isBefore(date, addDays(new Date(end), +1))
+        );
+      },
+    );
+  }
+
+  async getMonthlySpending(
+    userId: number,
+    data: { year: number; month: number },
+  ) {
+    const expenditures = await this.getExpenditures(userId, data);
+
+    const monthlySpending = expenditures.reduce((acc, { type, price }) => {
+      return acc + (type === 'SPENDING' ? price : 0);
+    }, 0);
+
+    const dailySpending = expenditures.reduce((acc, cur) => {
+      const todayExpenditure = isSameDay(
+        new Date(cur.year, cur.month - 1, cur.date),
+        new Date(),
+      );
+      if (!todayExpenditure) return acc;
+      if (cur.type === 'INCOME') return acc;
+      return acc + cur.price;
+    }, 0);
+
+    return {
+      monthly: monthlySpending,
+      daily: dailySpending,
+    };
+  }
+
   async getMonthlyExpenditures(
     userId: number,
     data: { year?: number; month?: number; category?: string },
@@ -252,11 +311,11 @@ export class MoneyService {
   }
 
   findMonthlyBudgetEndDay(year: number, month: number) {
-    const dateToFind = new Date(year, month - 1);
     // 한달을 더함
-    const dateMonthAdded = addMonths(dateToFind, 1);
-    const yearAdded = getYear(dateMonthAdded);
-    const monthAdded = getMonth(dateMonthAdded) + 1;
+    const { year: yearAdded, month: monthAdded } = this.findNextYearAndMonth(
+      year,
+      month,
+    );
 
     // 다음달의 시작일
     const startDateAdded = this.findMonthlyBudgetStartDay(
@@ -264,5 +323,15 @@ export class MoneyService {
       monthAdded,
     );
     return addDays(startDateAdded, -1);
+  }
+
+  findNextYearAndMonth(year: number, month: number) {
+    const dateToFind = new Date(year, month - 1);
+    // 한달을 더함
+    const dateMonthAdded = addMonths(dateToFind, 1);
+    const yearAdded = getYear(dateMonthAdded);
+    const monthAdded = getMonth(dateMonthAdded) + 1;
+
+    return { year: yearAdded, month: monthAdded };
   }
 }
