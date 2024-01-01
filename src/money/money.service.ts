@@ -51,12 +51,16 @@ export class MoneyService {
     const month = getMonth(dateToFind) + 1;
 
     const start = this.findMonthlyBudgetStartDay(year, month);
+
+    const yearToFind = isBefore(dateToFind, start)
+      ? getYear(addMonths(dateToFind, -1))
+      : getYear(dateToFind);
     const monthToFind = isBefore(dateToFind, start)
       ? getMonth(addMonths(dateToFind, -1)) + 1
       : month;
 
     return this.prisma.monthlyBudget.findFirst({
-      where: { userId, month: monthToFind },
+      where: { userId, year: yearToFind, month: monthToFind },
     });
   }
 
@@ -84,7 +88,15 @@ export class MoneyService {
     end = format(endDate, 'yyyy-MM-dd');
 
     return this.prisma.monthlyBudget.create({
-      data: { userId, ...data, start, end, budget: data.budget ?? 0 },
+      data: {
+        ...data,
+        userId,
+        year,
+        month,
+        start,
+        end,
+        budget: data.budget ?? 0,
+      },
     });
   }
 
