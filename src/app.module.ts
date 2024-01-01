@@ -15,6 +15,7 @@ import { NotionModule } from './notion/notion.module';
 import { CommentModule } from './comment/comment.module';
 import { WorkModule } from './work/work.module';
 import { HealthModule } from './health/health.module';
+import { MoneyModule } from './money/money.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { HealthModule } from './health/health.module';
     CommentModule,
     WorkModule,
     HealthModule,
+    MoneyModule,
   ],
   controllers: [AppController],
   providers: [AppService],

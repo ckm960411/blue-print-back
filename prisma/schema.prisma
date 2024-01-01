@@ -24,6 +24,21 @@ enum Role {
   GUEST
 }
 
+enum MonthlyBudgetType {
+  SUM
+  SPECIFIED
+}
+
+enum ExpenditureType {
+  INCOME
+  SPENDING
+}
+
+enum SpendingType {
+  CARD
+  CASH
+}
+
 // models
 model Tag {
   id          Int        @id @unique @default(autoincrement())
@@ -137,13 +152,18 @@ model Project {
 }
 
 model User {
-  id        Int        @id @unique @default(autoincrement())
-  email     String     @unique
-  password  String
-  role      Role
-  project   Project[]
-  exercises Exercise[]
-  Weight    Weight[]
+  id                    Int                     @id @unique @default(autoincrement())
+  email                 String                  @unique
+  password              String
+  role                  Role
+  project               Project[]
+  exercises             Exercise[]
+  Weight                Weight[]
+  MonthlyBudget         MonthlyBudget[]
+  BudgetCategory        BudgetCategory[]
+  MonthlyBudgetCategory MonthlyBudgetCategory[]
+  Expenditure           Expenditure[]
+  Money                 Money?
 }
 
 model Exercise {
@@ -170,4 +190,66 @@ model Weight {
   date   DateTime
   user   User     @relation(fields: [userId], references: [id])
   userId Int
+}
+
+model MonthlyBudget {
+  id                    Int                     @id @unique @default(autoincrement())
+  year                  Int
+  month                 Int
+  type                  MonthlyBudgetType
+  budget                Int?
+  start                 String
+  end                   String
+  User                  User?                   @relation(fields: [userId], references: [id])
+  userId                Int?
+  MonthlyBudgetCategory MonthlyBudgetCategory[]
+}
+
+model BudgetCategory {
+  id                    Int                     @id @unique @default(autoincrement())
+  name                  String
+  unicode               String
+  MonthlyBudgetCategory MonthlyBudgetCategory[]
+  user                  User                    @relation(fields: [userId], references: [id])
+  userId                Int
+  Expenditure           Expenditure[]
+}
+
+model MonthlyBudgetCategory {
+  id               Int             @id @unique @default(autoincrement())
+  BudgetCategory   BudgetCategory? @relation(fields: [budgetCategoryId], references: [id])
+  budgetCategoryId Int?
+  budget           Int
+  MonthlyBudget    MonthlyBudget   @relation(fields: [monthlyBudgetId], references: [id])
+  monthlyBudgetId  Int
+  User             User            @relation(fields: [userId], references: [id])
+  userId           Int
+  Expenditure      Expenditure[]
+}
+
+model Expenditure {
+  id                      Int                    @id @unique @default(autoincrement())
+  type                    ExpenditureType
+  year                    Int
+  month                   Int
+  date                    Int
+  hour                    Int
+  minute                  Int
+  content                 String
+  price                   Int
+  spendingType            SpendingType?
+  createdAt               DateTime               @default(now())
+  User                    User                   @relation(fields: [userId], references: [id])
+  userId                  Int
+  MonthlyBudgetCategory   MonthlyBudgetCategory? @relation(fields: [monthlyBudgetCategoryId], references: [id])
+  monthlyBudgetCategoryId Int?
+  BudgetCategory          BudgetCategory?        @relation(fields: [budgetCategoryId], references: [id])
+  budgetCategoryId        Int?
+}
+
+model Money {
+  id      Int  @id @unique @default(autoincrement())
+  balance Int
+  User    User @relation(fields: [userId], references: [id])
+  userId  Int  @unique
 }
